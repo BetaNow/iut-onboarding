@@ -1,0 +1,35 @@
+default:
+  image: node:24-alpine
+  interruptible: true
+  cache:
+    key:
+      files:
+        - package-lock.json
+    paths:
+      - .npm/
+  before_script:
+    - npm ci --cache .npm --prefer-offline
+
+stages:
+  - quality
+  - build
+
+lint:
+  stage: quality
+  script:
+    - npm run lint
+
+typecheck:
+  stage: quality
+  script:
+    - npm run typecheck
+
+build:
+  stage: build
+  script:
+    - npm run build
+  artifacts:
+    name: "iut-onboarding-$CI_COMMIT_SHORT_SHA"
+    paths:
+      - .output/
+    expire_in: 1 week
