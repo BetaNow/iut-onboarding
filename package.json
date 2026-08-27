@@ -4,17 +4,25 @@
   "private": true,
   "scripts": {
     "build": "nuxt build",
+    "db:down": "docker compose down",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:setup": "docker compose up -d --wait db && npm run db:migrate",
+    "db:up": "docker compose up -d --wait db",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "preview": "nuxt preview",
+    "module:new": "node scripts/newModule.mjs",
     "postinstall": "nuxt prepare",
+    "preview": "nuxt preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "typecheck": "nuxt typecheck"
   },
   "dependencies": {
+    "@nuxt/fonts": "^0.14.0",
     "@vite-pwa/nuxt": "^1.1.1",
-    "drizzle-kit": "^0.31.10",
     "drizzle-orm": "^0.45.2",
     "mysql2": "^3.23.1",
     "nuxt": "^4.5.0",
@@ -24,13 +32,20 @@
     "vue-router": "^5.2.0"
   },
   "allowScripts": {
-    "esbuild@0.28.1": true,
-    "fsevents@2.3.3": true
+    "fsevents@2.3.3": true,
+    "@parcel/watcher@2.6.0": true,
+    "unrs-resolver@1.12.2": true,
+    "es5-ext@0.10.64": true,
+    "esbuild@0.28.1": true
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.16.0",
+    "drizzle-kit": "^0.31.10",
     "eslint": "^10.7.0",
+    "sass": "^1.101.6",
+    "sass-embedded": "^1.100.0",
     "typescript": "^6.0.3",
+    "vitest": "^4.1.11",
     "vue-tsc": "^3.3.7"
   }
 }

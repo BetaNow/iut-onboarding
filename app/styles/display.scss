@@ -1,0 +1,42 @@
+.header {
+  padding: 1rem 1.6rem;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #bebebe;
+
+  &-logo {
+    height: 3rem;
+  }
+
+  &-date {
+    display: flex;
+    align-items: flex-end;
+    gap: 2rem;
+
+    &-text {
+      color: #555;
+      font-weight: 300;
+      line-height: 2rem;
+    }
+
+    &-time {
+      display: flex;
+      align-items: flex-end;
+
+      &-text {
+        font-weight: 500;
+        font-size: 2rem;
+      }
+
+      &-seconds {
+        color: $primary-color;
+        font-weight: 300;
+        font-size: 1.2rem;
+        line-height: 2rem;
+        margin-left: .2rem;
+      }
+    }
+  }
+}
