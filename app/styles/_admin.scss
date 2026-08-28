@@ -1,0 +1,28 @@
+// The admin's surface. Deliberately not Win98: the display is the costume, the
+// admin is the tool you hold while standing in a corridor in front of a dead
+// panel, so it is plain, high-contrast and thumb-sized.
+.admin {
+  --admin-surface: #fff;
+  --admin-sunken: #fafafa;
+  --admin-border: #e4e4e4;
+  --admin-border-strong: #cfcfcf;
+  --admin-text: #2b2b2b;
+  --admin-text-dim: #6f6f6f;
+  --admin-accent: #{$primary-color};
+  --admin-accent-dim: #{rgba($primary-color, .12)};
+  --admin-danger: #c8372d;
+  --admin-online: #2e9e5b;
+  --admin-offline: #b4b4b4;
+  --admin-radius: 10px;
+  --admin-shadow: 0 1px 2px rgb(0 0 0 / 6%), 0 6px 16px rgb(0 0 0 / 5%);
+
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: var(--admin-text);
+  min-height: 100vh;
+}
+
+// Slugs, durations and timestamps read as data, not prose.
+.admin-mono {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}

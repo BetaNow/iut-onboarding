@@ -1,0 +1,62 @@
+// Windows 98 design tokens.
+// Exposed as CSS custom properties so every SFC can use them without extra
+// Sass plumbing, and so a single window can be re-themed by overriding --w98-accent.
+
+:root {
+  // Surfaces
+  --w98-face: #c0c0c0;
+  --w98-face-dim: #b4b4b4;
+  --w98-face-alt: #d8d8d8;
+  --w98-light: #dfdfdf;
+  --w98-white: #fff;
+  --w98-shadow: #808080;
+  --w98-dark: #0a0a0a;
+
+  // Text
+  --w98-text: #0a0a0a;
+  --w98-text-dim: #303030;
+  --w98-text-mute: #505050;
+
+  // Chrome
+  --w98-desktop: #0e7c86;
+  --w98-accent: #0d98d4;
+  --w98-title-deep: #0a246a;
+  --w98-title-idle-a: #808080;
+  --w98-title-idle-b: #b5b5b5;
+  --w98-select: #0a246a;
+
+  // Bevels. Win98 draws a 2px double border: an outer light/dark pair and an
+  // inner one. Four stacked inset shadows reproduce it exactly.
+  --w98-raised:
+    inset -2px -2px 0 var(--w98-dark),
+    inset 2px 2px 0 var(--w98-white),
+    inset -3px -3px 0 var(--w98-shadow),
+    inset 3px 3px 0 var(--w98-light);
+  --w98-pressed:
+    inset 2px 2px 0 var(--w98-dark),
+    inset -2px -2px 0 var(--w98-white),
+    inset 3px 3px 0 var(--w98-shadow),
+    inset -3px -3px 0 var(--w98-light);
+  --w98-sunken:
+    inset 2px 2px 0 var(--w98-shadow),
+    inset -2px -2px 0 var(--w98-white),
+    inset 3px 3px 0 var(--w98-dark);
+  --w98-groove:
+    inset 2px 2px 0 var(--w98-shadow),
+    inset -2px -2px 0 var(--w98-white);
+
+  // Windows never had drop shadows, but overlapping windows on a hall display
+  // need the separation to stay readable from across the room.
+  --w98-drop: 7px 7px 0 rgb(0 0 0 / 22%);
+  --w98-drop-lg: 9px 9px 0 rgb(0 0 0 / 25%);
+
+  --w98-ui-font: "MS W98 UI", Tahoma, Verdana, "DejaVu Sans", Geneva, sans-serif;
+  --w98-mono-font: "JetBrains Mono", ui-monospace, monospace;
+
+  // MS Sans Serif is a bitmap face: its stems only land on whole pixels at its
+  // 11px design size and exact multiples (11 / 22 / 33). Anything else renders
+  // off-grid and blurs. 11px is unreadable across a hall, so the chrome runs at
+  // 2x. Win98 used one UI size everywhere, so this is the authentic choice too.
+  --w98-ui-size: 22px;
+  --w98-ui-size-sm: 11px;
+}

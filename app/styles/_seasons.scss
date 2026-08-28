@@ -1,0 +1,44 @@
+// Seasonal themes.
+//
+// The season owns the desktop backdrop and the title-bar gradient; the window
+// faces, bevels and taskbar stay Win98 grey. Department identity is carried by
+// the logo, window titles and paths instead of by colour.
+//
+// Scoped to [data-season] on the stage rather than :root, so the tokens in
+// _win98.scss stay the fallback and a stage can be themed independently.
+//
+// Colour is all this file does. Everything the season draws over the desktop,
+// falling particles, the snow along each window's top edge, the grass moving in
+// the wind, is painted on one canvas in SeasonOverlay.vue, because those
+// layers have to interleave with each other and with the window stack in ways
+// a pseudo-element cannot.
+
+[data-season="spring"] {
+  --w98-desktop: #456f34;
+  --w98-title-deep: #5c2545;
+  --w98-accent: #e2a7bd;
+  --w98-select: #5c2545;
+}
+
+[data-season="summer"] {
+  --w98-desktop: #2f76b4;
+  --w98-title-deep: #0f4c81;
+  --w98-accent: #f5c451;
+  --w98-select: #0f4c81;
+}
+
+[data-season="autumn"] {
+  // Deeper and less orange than the leaves themselves, or the falling leaves
+  // sink into the backdrop.
+  --w98-desktop: #4a2f18;
+  --w98-title-deep: #5a1f0a;
+  --w98-accent: #dd8b3a;
+  --w98-select: #5a1f0a;
+}
+
+[data-season="winter"] {
+  --w98-desktop: #33546f;
+  --w98-title-deep: #0a2a4a;
+  --w98-accent: #8fc4e8;
+  --w98-select: #0a2a4a;
+}
