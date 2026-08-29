@@ -22,6 +22,13 @@
       "when": 1787761091905,
       "tag": "0002_module_config_table",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1788043289660,
+      "tag": "0003_tough_franklin_richards",
+      "breakpoints": true
     }
   ]
 }
