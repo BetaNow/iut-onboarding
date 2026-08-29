@@ -35,6 +35,15 @@ export default defineNuxtConfig({
       },
     },
   },
+  nitro: {
+    experimental: {
+      tasks: true,
+    },
+    scheduledTasks: {
+      '0 8 * * 1-5': ['crous:fetch-today'],
+      '0 14 * * 1-5': ['crous:fetch-tomorrow'],
+    },
+  },
   experimental: {
     appManifest: false,
   },

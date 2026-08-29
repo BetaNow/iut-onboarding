@@ -38,6 +38,7 @@ type CrousApiResponse = {
 }
 
 const RESTAURANT_CODE = 19
+const MAX_DAYS_TO_TRY = 7
 
 const CROUS_USER_AGENT = 'IUT-Onboarding/1.0 (timothe.velasco@orange.fr) [Affichage des menus des restaurants universitaires sur panneau d accueil IUT]'
 
@@ -74,21 +75,11 @@ function normalizeCategory(categoryName: string): CrousMenuItem['category'] {
   return 'Plat'
 }
 
-export default defineEventHandler(async (event) => {
-  const query = getQuery(event)
-  const db = useDatabase()
-
-  const offsetDays = Number(query.offsetDays ?? 0)
-
-  if (!Number.isInteger(offsetDays) || offsetDays < 0 || offsetDays > 7) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'offsetDays doit être un entier compris entre 0 et 7',
-    })
-  }
-
-  const { apiDate, isoDate } = getTargetDate(offsetDays)
-
+// Essaie de récupérer le menu pour un jour précis.
+// Retourne le payload en cas de succès, ou `null` si aucun menu n'existe ce jour-là (404).
+// Lève une erreur pour tout autre problème (réseau, format inattendu, etc.).
+async function tryFetchMenuForOffset(offset: number): Promise<CrousMenuPayload | null> {
+  const { apiDate, isoDate } = getTargetDate(offset)
   const url = `https://api.croustillant.menu/v1/restaurants/${RESTAURANT_CODE}/menu/${apiDate}`
 
   let apiResponse: CrousApiResponse
@@ -100,27 +91,30 @@ export default defineEventHandler(async (event) => {
       },
     })
   }
-  catch (error) {
-    console.error('CROUStillant fetch failed:', error)
+  catch (e: unknown) {
+    const error = e as { status?: number, statusCode?: number, response?: { status?: number }, data?: { statusCode?: number } }
 
+    const status
+      = error?.status
+        ?? error?.statusCode
+        ?? error?.response?.status
+        ?? error?.data?.statusCode
+
+    if (status === 404) {
+      console.log(`[crous] Aucun menu le ${apiDate} (404), on essaie le jour suivant`)
+      return null
+    }
+
+    console.error('[crous] Erreur inattendue lors de l’appel à CROUStillant:', error)
     throw createError({
       statusCode: 502,
-      statusMessage: 'Impossible de récupérer le menu auprès de CROUStillant',
-    })
-  }
-
-  if (!apiResponse.success || !apiResponse.data) {
-    throw createError({
-      statusCode: 502,
-      statusMessage: 'Réponse invalide de CROUStillant',
+      statusMessage: `Impossible de contacter CROUStillant pour le ${apiDate}`,
     })
   }
 
   if (apiResponse.data.date !== apiDate) {
-    throw createError({
-      statusCode: 502,
-      statusMessage: `La date retournée par CROUStillant ne correspond pas à ${apiDate}`,
-    })
+    console.warn(`[crous] Date retournée (${apiResponse.data.date}) ≠ date demandée (${apiDate})`)
+    return null
   }
 
   const meal = apiResponse.data.repas.find(
@@ -128,10 +122,8 @@ export default defineEventHandler(async (event) => {
   ) ?? apiResponse.data.repas[0]
 
   if (!meal) {
-    throw createError({
-      statusCode: 404,
-      statusMessage: `Aucun repas disponible pour le ${apiDate}`,
-    })
+    console.log(`[crous] Aucun repas exploitable le ${apiDate}, on essaie le jour suivant`)
+    return null
   }
 
   const items: CrousMenuItem[] = []
@@ -152,41 +144,68 @@ export default defineEventHandler(async (event) => {
   }
 
   if (!items.length) {
-    throw createError({
-      statusCode: 404,
-      statusMessage: `Le menu du ${apiDate} ne contient aucun plat`,
-    })
+    console.log(`[crous] Menu vide le ${apiDate}, on essaie le jour suivant`)
+    return null
   }
 
-  const payload: CrousMenuPayload = {
+  return {
     date: isoDate,
     service: meal.type.toLowerCase(),
     items,
   }
+}
 
-  await db
-    .delete(crousMenuTable)
-    .where(
-      and(
-        eq(crousMenuTable.restaurantId, RESTAURANT_CODE),
-        eq(crousMenuTable.date, isoDate),
-        eq(crousMenuTable.service, payload.service),
-      ),
-    )
+export default defineEventHandler(async (event) => {
+  const query = getQuery(event)
+  const db = useDatabase()
 
-  await db.insert(crousMenuTable).values({
-    restaurantId: RESTAURANT_CODE,
-    date: isoDate,
-    service: payload.service,
-    payload,
-    fetchedAt: new Date(),
-  })
+  const startOffset = Number(query.offsetDays ?? 0)
 
-  return {
-    ok: true,
-    restaurantId: RESTAURANT_CODE,
-    date: isoDate,
-    service: payload.service,
-    itemsCount: items.length,
+  if (!Number.isInteger(startOffset) || startOffset < 0 || startOffset > 7) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'offsetDays doit être un entier compris entre 0 et 7',
+    })
   }
+
+  // On avance jour après jour tant qu'on ne trouve pas de menu.
+  for (let offset = startOffset; offset < startOffset + MAX_DAYS_TO_TRY; offset++) {
+    const payload = await tryFetchMenuForOffset(offset)
+
+    if (!payload) {
+      continue
+    }
+
+    await db
+      .delete(crousMenuTable)
+      .where(
+        and(
+          eq(crousMenuTable.restaurantId, RESTAURANT_CODE),
+          eq(crousMenuTable.date, payload.date),
+          eq(crousMenuTable.service, payload.service),
+        ),
+      )
+
+    await db.insert(crousMenuTable).values({
+      restaurantId: RESTAURANT_CODE,
+      date: payload.date,
+      service: payload.service,
+      payload,
+      fetchedAt: new Date(),
+    })
+
+    return {
+      ok: true,
+      restaurantId: RESTAURANT_CODE,
+      date: payload.date,
+      service: payload.service,
+      itemsCount: payload.items.length,
+      skippedDays: offset - startOffset,
+    }
+  }
+
+  throw createError({
+    statusCode: 404,
+    statusMessage: `Aucun menu trouvé dans les ${MAX_DAYS_TO_TRY} jours suivant offsetDays=${startOffset}`,
+  })
 })
