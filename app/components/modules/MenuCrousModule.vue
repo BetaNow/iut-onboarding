@@ -267,9 +267,10 @@ const reason = computed(() => {
 
 /* Cartes jours */
 .menu-crous__days {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+  margin: 0 auto;
 }
 
 .menu-crous__day-card {
@@ -284,7 +285,7 @@ const reason = computed(() => {
 .menu-crous__day-header {
   display: flex;
   justify-content: space-between;
-  padding: 2px 4px;
+  padding: 5px 6px;
   background: #d4d0c8;
   border-bottom: 1px solid #808080;
   font-size: 12px;
@@ -292,9 +293,11 @@ const reason = computed(() => {
 
 .menu-crous__day-label {
   font-weight: 700;
+  font-size: 25px;
 }
 
 .menu-crous__service {
+  font-size: 20px;
   font-style: italic;
 }
 
@@ -310,7 +313,7 @@ const reason = computed(() => {
 
 .menu-crous__column-title {
   margin: 0 0 2px;
-  font-size: 12px;
+  font-size: 20px;
   font-weight: 700;
 }
 
@@ -321,6 +324,8 @@ const reason = computed(() => {
 
   li {
     margin-bottom: 2px;
+    font-size: 16px;
+    padding: 3px;
   }
 }
 
