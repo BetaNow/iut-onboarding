@@ -90,6 +90,39 @@ export const MODULE_CATALOGUE: ModuleDefinition[] = [
       },
     ],
   },
+  {
+    id: 'weather',
+    label: 'Météo',
+    icon: `${ICON}/world-0.png`,
+    defaultDurationMs: 30_000,
+    settings: [
+      {
+        key: 'city',
+        label: 'Ville',
+        type: 'text',
+        default: 'Bordeaux',
+        help: 'Nom affiché sur le module.',
+      },
+      {
+        key: 'latitude',
+        label: 'Latitude',
+        type: 'number',
+        default: 44.8378,
+        min: -90,
+        max: 90,
+        help: 'Exemple Bordeaux : 44.8378.',
+      },
+      {
+        key: 'longitude',
+        label: 'Longitude',
+        type: 'number',
+        default: -0.5792,
+        min: -180,
+        max: 180,
+        help: 'Exemple Bordeaux : -0.5792.',
+      },
+    ],
+  },
 ]
 
 // Splits stored rows into the ones the catalogue still describes and the ones it
