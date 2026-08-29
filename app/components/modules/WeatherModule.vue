@@ -149,15 +149,11 @@ const nextSixHours = computed(() => {
       temperature: hourly.value!.temperature_2m[index],
       code: hourly.value!.weather_code[index],
       precip:
-          hourly.value!.precipitation_probability
-              ? hourly.value!.precipitation_probability[index]
-              : undefined,
+          hourly.value!.precipitation_probability ? hourly.value!.precipitation_probability[index] : undefined,
     }
   })
 
-  return slots
-      .filter(slot => slot.time >= now)
-      .slice(0, 6)
+  return slots.filter(slot => slot.time >= now).slice(0, 6)
 })
 
 function hourLabel(time: Date, index: number) {
@@ -173,11 +169,11 @@ function hourLabel(time: Date, index: number) {
   <div class="weather98">
     <div class="weather98__chrome">
       <img
-          class="weather98__icon"
-          :src="iconFor(current?.weather_code)"
-          alt=""
-          width="32"
-          height="32"
+        class="weather98__icon"
+        :src="iconFor(current?.weather_code)"
+        alt=""
+        width="32"
+        height="32"
       >
       <span class="weather98__title">
         Météo - {{ city }}
@@ -187,8 +183,8 @@ function hourLabel(time: Date, index: number) {
     <div class="weather98__toolbar" />
 
     <div
-        v-if="error"
-        class="weather98__empty"
+      v-if="error"
+      class="weather98__empty"
     >
       <p class="weather98__empty-line">
         La météo n’a pas pu être chargée.
@@ -199,14 +195,14 @@ function hourLabel(time: Date, index: number) {
     </div>
 
     <div
-        v-else-if="current"
-        class="weather98__content"
+      v-else-if="current"
+      class="weather98__content"
     >
       <section class="weather98__current">
         <div class="weather98__current-icon">
           <img
-              :src="iconFor(current.weather_code)"
-              alt="Icône météo"
+            :src="iconFor(current.weather_code)"
+            alt="Icône météo"
           >
         </div>
 
@@ -225,21 +221,23 @@ function hourLabel(time: Date, index: number) {
         <div class="weather98__current-stats">
           <div>
             <div>
-             Vent
-              <img src="/windows98-icons/png/weather/other/anemometer.png"
-                   alt="anemometer icon"
-                   class="weather98__hourly-icon"
-              />
+              Vent
+              <img
+                src="/windows98-icons/png/weather/other/anemometer.png"
+                alt="anemometer icon"
+                class="weather98__hourly-icon"
+              >
             </div>
             <strong>{{ Math.round(current.wind_speed_10m) }} km/h</strong>
           </div>
           <div>
             <div>
               Humidité
-              <img src="/windows98-icons/png/weather/other/humidity.png"
-                   alt="humidity icon"
-                   class="weather98__hourly-icon"
-              />
+              <img
+                src="/windows98-icons/png/weather/other/humidity.png"
+                alt="humidity icon"
+                class="weather98__hourly-icon"
+              >
             </div>
             <strong>{{ current.relative_humidity_2m }} %</strong>
           </div>
@@ -247,13 +245,13 @@ function hourLabel(time: Date, index: number) {
       </section>
 
       <section
-          v-if="nextSixHours.length"
-          class="weather98__hourly"
+        v-if="nextSixHours.length"
+        class="weather98__hourly"
       >
         <article
-            v-for="(slot, index) in nextSixHours"
-            :key="slot.time.toISOString()"
-            class="weather98__hourly-card"
+          v-for="(slot, index) in nextSixHours"
+          :key="slot.time.toISOString()"
+          class="weather98__hourly-card"
         >
           <header class="weather98__hourly-header">
             {{ hourLabel(slot.time, index) }}
@@ -261,18 +259,18 @@ function hourLabel(time: Date, index: number) {
 
           <div class="weather98__hourly-body">
             <img
-                :src="iconFor(slot.code)"
-                alt=""
-                class="weather98__hourly-icon"
+              :src="iconFor(slot.code)"
+              alt=""
+              class="weather98__hourly-icon"
             >
 
             <div class="weather98__hourly-temp">
-              {{ Math.round(slot.temperature) }} °C
+              {{ Math.round(slot.temperature ?? 0) }} °C
             </div>
 
             <small
-                v-if="slot.precip != null"
-                class="weather98__hourly-rain"
+              v-if="slot.precip != null"
+              class="weather98__hourly-rain"
             >
               💧 {{ slot.precip }} %
             </small>
@@ -281,13 +279,13 @@ function hourLabel(time: Date, index: number) {
       </section>
 
       <section
-          v-if="daily"
-          class="weather98__forecast"
+        v-if="daily"
+        class="weather98__forecast"
       >
         <article
-            v-for="(date, index) in daily.time"
-            :key="date"
-            class="weather98__forecast-card"
+          v-for="(date, index) in daily.time"
+          :key="date"
+          class="weather98__forecast-card"
         >
           <header class="weather98__forecast-header">
             {{ dayLabel(date, index) }}
@@ -295,38 +293,38 @@ function hourLabel(time: Date, index: number) {
 
           <div class="weather98__forecast-body">
             <img
-                :src="iconFor(daily.weather_code[index])"
-                alt=""
-                class="weather98__forecast-icon"
+              :src="iconFor(daily.weather_code[index])"
+              alt=""
+              class="weather98__forecast-icon"
             >
 
             <div class="weather98__forecast-temps">
               <span class="weather98__forecast-min">
-                {{ Math.round(daily.temperature_2m_min[index]) }}°
+                {{ Math.round(daily.temperature_2m_min[index] ?? 0) }}°
               </span>
               <span class="weather98__forecast-max">
-                {{ Math.round(daily.temperature_2m_max[index]) }}°
+                {{ Math.round(daily.temperature_2m_max[index] ?? 0) }}°
               </span>
             </div>
             <div class="weather98__forecast-humidity">
-              <img src="/windows98-icons/png/weather/other/humidity.png"
-                   alt="humidity icon"
-                   class="weather98__small-hourly-icon"
-              />
+              <img
+                src="/windows98-icons/png/weather/other/humidity.png"
+                alt="humidity icon"
+                class="weather98__small-hourly-icon"
+              >
               <small class="weather98__forecast-rain">
 
                 {{ daily.precipitation_probability_max[index] }} %
               </small>
             </div>
-
           </div>
         </article>
       </section>
     </div>
 
     <div
-        v-else
-        class="weather98__empty"
+      v-else
+      class="weather98__empty"
     >
       <p class="weather98__empty-line">
         Chargement de la météo…
@@ -342,16 +340,17 @@ function hourLabel(time: Date, index: number) {
 </template>
 
 <style scoped lang="scss">
-.weather98__small_condition{
+.weather98__small_condition {
   font-size: 25px;
 
 }
+
 .weather98 {
   display: flex;
   height: 100%;
   flex-direction: column;
   background: #c0c0c0;
-  font-family: var(--w98-ui-font);
+  font-family: var(--w98-ui-font),serif;
 }
 
 .weather98__chrome {
@@ -473,6 +472,7 @@ function hourLabel(time: Date, index: number) {
   height: 24px;
   image-rendering: pixelated;
 }
+
 .weather98__small-hourly-icon {
   width: 18px;
   height: 18px;
