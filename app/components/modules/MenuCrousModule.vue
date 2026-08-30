@@ -90,9 +90,14 @@ const reason = computed(() => {
           class="menu-crous__day-card"
         >
           <header class="menu-crous__day-header">
-            <span class="menu-crous__day-label">
-              {{ day.label }}
-            </span>
+            <div>
+              <span class="menu-crous__day-label">
+                {{ day.label }}
+              </span>
+              <span class="menu-crous__day-date">
+                {{ day.date }}
+              </span>
+            </div>
 
             <span class="menu-crous__service">
               {{ day.service }}
@@ -339,7 +344,10 @@ const reason = computed(() => {
   border-top: 1px solid #ffffff;
   font-size: 11px;
 }
-
+.menu\-crous__day\-date {
+  font-size: 20px;
+  margin-left: 10px;
+}
 @media (max-width: 900px) {
   .menu-crous__days {
     grid-template-columns: repeat(2, 1fr);

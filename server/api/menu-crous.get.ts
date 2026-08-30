@@ -1,21 +1,21 @@
-/**
- * API route that reads the stored CROUStillant menu data for the campus
- * restaurant and returns a simple set of upcoming days to the client.
- *
- * It keeps the logic light: it filters the database rows for the restaurant and
- * for dates starting today, orders them chronologically, and formats the result
- * into a lightweight payload with labels such as "Aujourd’hui" and "Demain".
- */
 import { defineEventHandler, getQuery } from 'h3'
-import { and, asc, eq, gte } from 'drizzle-orm'
+import { asc, and, eq, gte, inArray } from 'drizzle-orm'
 import { useDatabase } from '../utils/database'
 import {
   crousMenuTable,
-  type CrousMenuPayload,
+  crousMenuItemTable,
 } from '#server/database'
 
-type CrousMenuDay = CrousMenuPayload & {
+type CrousMenuItem = {
+  category: 'Entrée' | 'Plat' | 'Dessert'
+  name: string
+}
+
+type CrousMenuDay = {
+  date: string
   label: string
+  service: string
+  items: CrousMenuItem[]
 }
 
 type CrousMenuResponse = {
@@ -26,13 +26,6 @@ type CrousMenuResponse = {
 
 const RESTAURANT_CODE = 19
 
-/**
- * Builds an ISO date string in the local timezone, using the current date by
- * default.
- *
- * This is used to compare database rows with the current day in a format that is
- * easy to sort and filter. The result is `YYYY-MM-DD`.
- */
 function getLocalIsoDate(date = new Date()) {
   const day = String(date.getDate()).padStart(2, '0')
   const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -41,13 +34,6 @@ function getLocalIsoDate(date = new Date()) {
   return `${year}-${month}-${day}`
 }
 
-/**
- * Creates a user-friendly label for a menu date based on its distance from the
- * current day.
- *
- * It returns strings such as "Aujourd’hui", "Demain", or the localized weekday
- * and numeric date when the menu is further away.
- */
 function formatDateLabel(dateIso: string, todayIso: string) {
   const date = new Date(`${dateIso}T12:00:00`)
   const today = new Date(`${todayIso}T12:00:00`)
@@ -71,15 +57,6 @@ function formatDateLabel(dateIso: string, todayIso: string) {
   }).format(date)
 }
 
-/**
- * Reads the next available menu entries for the campus restaurant and exposes
- * them through the API.
- *
- * The route validates the `daysAhead` query parameter, fetches matching rows for
- * the configured restaurant from the database, and truncates the result to the
- * requested count while preserving chronological order. Finally, it formats a
- * human-readable name and city alongside each day payload for the frontend.
- */
 export default defineEventHandler(async (event): Promise<CrousMenuResponse> => {
   const query = getQuery(event)
   const db = useDatabase()
@@ -93,7 +70,7 @@ export default defineEventHandler(async (event): Promise<CrousMenuResponse> => {
   const today = new Date()
   const todayIso = getLocalIsoDate(today)
 
-  const rows = await db
+  const menuRows = await db
     .select()
     .from(crousMenuTable)
     .where(
@@ -103,23 +80,37 @@ export default defineEventHandler(async (event): Promise<CrousMenuResponse> => {
       ),
     )
     .orderBy(asc(crousMenuTable.date))
+    .limit(daysAhead)
 
-  const days: CrousMenuDay[] = []
-
-  for (const row of rows) {
-    if (days.length >= daysAhead) {
-      break
+  if (!menuRows.length) {
+    return {
+      restaurantName: '(S)pace\' Campus - Resto U\'',
+      restaurantCity: 'Pessac',
+      days: [],
     }
-
-    const payload = row.payload as CrousMenuPayload
-
-    days.push({
-      date: payload.date,
-      service: payload.service,
-      items: payload.items,
-      label: formatDateLabel(payload.date, todayIso),
-    })
   }
+
+  const menuIds = menuRows.map(row => row.id)
+
+  const itemRows = await db
+    .select()
+    .from(crousMenuItemTable)
+    .where(inArray(crousMenuItemTable.menuId, menuIds))
+    .orderBy(asc(crousMenuItemTable.ordre))
+  const itemsByMenuId = new Map<number, CrousMenuItem[]>()
+
+  for (const item of itemRows) {
+    const list = itemsByMenuId.get(item.menuId) ?? []
+    list.push({ category: item.category, name: item.name })
+    itemsByMenuId.set(item.menuId, list)
+  }
+
+  const days: CrousMenuDay[] = menuRows.map(row => ({
+    date: row.date,
+    service: row.service,
+    label: formatDateLabel(row.date, todayIso),
+    items: itemsByMenuId.get(row.id) ?? [],
+  }))
 
   return {
     restaurantName: '(S)pace\' Campus - Resto U\'',

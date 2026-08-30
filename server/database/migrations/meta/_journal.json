@@ -29,6 +29,13 @@
       "when": 1788043289660,
       "tag": "0003_tough_franklin_richards",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1788089593323,
+      "tag": "0004_thin_albert_cleary",
+      "breakpoints": true
     }
   ]
 }
