@@ -35,6 +35,10 @@ export default defineNuxtConfig({
       },
     },
   },
+  experimental: {
+    appManifest: false,
+  },
+  compatibilityDate: '2025-07-15',
   nitro: {
     experimental: {
       tasks: true,
@@ -44,10 +48,6 @@ export default defineNuxtConfig({
       '0 14 * * 1-5': ['crous:fetch-tomorrow'],
     },
   },
-  experimental: {
-    appManifest: false,
-  },
-  compatibilityDate: '2025-07-15',
   eslint: {
     config: {
       stylistic: true,

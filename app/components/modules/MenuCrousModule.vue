@@ -56,7 +56,6 @@ const reason = computed(() => {
       </span>
     </div>
 
-    <!-- Contenu -->
     <div
       v-if="error"
       class="menu-crous__body menu-crous__body--empty"
@@ -68,7 +67,7 @@ const reason = computed(() => {
         {{ reason }}
       </p>
     </div>
-    <!-- En‑tête restaurant -->
+
     <div
       v-else-if="days.length"
       class="menu-crous__body"
@@ -173,7 +172,6 @@ const reason = computed(() => {
       </p>
     </div>
 
-    <!-- Barre de status -->
     <footer class="menu-crous__status">
       <span>Prêt</span>
       <span>Source : api.croustillant.menu</span>
@@ -190,7 +188,6 @@ const reason = computed(() => {
   font-family: var(--w98-ui-font), sans-serif;
 }
 
-/* Barre de titre */
 .menu-crous__chrome {
   display: flex;
   align-items: center;
@@ -210,7 +207,6 @@ const reason = computed(() => {
   font-weight: 700;
 }
 
-/* Barre de menus */
 .menu-crous__toolbar {
   display: flex;
   gap: 12px;
@@ -223,7 +219,6 @@ const reason = computed(() => {
   }
 }
 
-/* Corps */
 .menu-crous__body {
   flex: 1;
   padding: 8px 10px;
@@ -237,7 +232,6 @@ const reason = computed(() => {
   justify-content: center;
 }
 
-/* En-tête restaurant */
 .menu-crous__header {
   display: flex;
   justify-content: space-between;
@@ -265,7 +259,6 @@ const reason = computed(() => {
   color: var(--w98-text-dim);
 }
 
-/* Cartes jours */
 .menu-crous__days {
   display: flex;
   flex-direction: column;
@@ -329,7 +322,6 @@ const reason = computed(() => {
   }
 }
 
-/* États vides */
 .menu-crous__empty-line {
   font-size: 18px;
 }
@@ -339,7 +331,6 @@ const reason = computed(() => {
   color: #b00;
 }
 
-/* Status bar */
 .menu-crous__status {
   display: flex;
   justify-content: space-between;

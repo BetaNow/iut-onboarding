@@ -1,3 +1,12 @@
+/**
+ * API route that fetches the restaurant menu from the CROUStillant service,
+ * normalizes the response, and stores the valid menu in the database.
+ *
+ * The handler accepts an `offsetDays` query parameter so the client can request
+ * a menu starting from today or from a nearby day in the next week. It will try
+ * several consecutive dates until a valid menu is found, then insert or replace
+ * the corresponding row in `crousMenuTable`.
+ */
 import { createError, defineEventHandler, getQuery } from 'h3'
 import { and, eq } from 'drizzle-orm'
 import { useDatabase } from '../../utils/database'
@@ -42,6 +51,13 @@ const MAX_DAYS_TO_TRY = 7
 
 const CROUS_USER_AGENT = 'IUT-Onboarding/1.0 (timothe.velasco@orange.fr) [Affichage des menus des restaurants universitaires sur panneau d accueil IUT]'
 
+/**
+ * Builds the date string expected by the CROUStillant API and the ISO date
+ * used internally in the database.
+ *
+ * The API requires a day-month-year format, while the persisted menu payload uses
+ * the ISO YYYY-MM-DD format for easier filtering and comparisons.
+ */
 function getTargetDate(offsetDays: number) {
   const date = new Date()
 
@@ -58,6 +74,15 @@ function getTargetDate(offsetDays: number) {
   }
 }
 
+/**
+ * Converts a raw category label from the external API into the normalized
+ * category values used by the application.
+ *
+ * The CROUStillant API may return labels such as "Entrées", "Desserts", or
+ * other variants. The function strips accents and performs a keyword-based
+ * mapping so the application can rely on consistent values: `Entrée`, `Plat`,
+ * and `Dessert`.
+ */
 function normalizeCategory(categoryName: string): CrousMenuItem['category'] {
   const label = categoryName
     .normalize('NFD')
@@ -75,9 +100,15 @@ function normalizeCategory(categoryName: string): CrousMenuItem['category'] {
   return 'Plat'
 }
 
-// Essaie de récupérer le menu pour un jour précis.
-// Retourne le payload en cas de succès, ou `null` si aucun menu n'existe ce jour-là (404).
-// Lève une erreur pour tout autre problème (réseau, format inattendu, etc.).
+/**
+ * Fetches a single menu for one day and converts it into the application's
+ * normalized internal payload.
+ *
+ * The handler checks whether the source API returns a valid response for the
+ * requested date, picks the lunch service when available, and drops empty/blank
+ * dish names before returning the data. If the date has no menu, the function
+ * returns `null` so the caller can continue to the next day.
+ */
 async function tryFetchMenuForOffset(offset: number): Promise<CrousMenuPayload | null> {
   const { apiDate, isoDate } = getTargetDate(offset)
   const url = `https://api.croustillant.menu/v1/restaurants/${RESTAURANT_CODE}/menu/${apiDate}`
@@ -155,6 +186,16 @@ async function tryFetchMenuForOffset(offset: number): Promise<CrousMenuPayload |
   }
 }
 
+/**
+ * HTTP endpoint that retrieves the next available restaurant menu for a given
+ * offset day and persists it in the database.
+ *
+ * Validation ensures `offsetDays` is a non-negative integer in the range 0..7.
+ * Then the route scans up to 7 consecutive days, skipping empty dates and
+ * stopping as soon as a valid menu is found. Once a menu is saved, it responds
+ * with the restaurant identifier, the date, the meal service, and the number of
+ * menu items returned.
+ */
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
   const db = useDatabase()
@@ -168,7 +209,6 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  // On avance jour après jour tant qu'on ne trouve pas de menu.
   for (let offset = startOffset; offset < startOffset + MAX_DAYS_TO_TRY; offset++) {
     const payload = await tryFetchMenuForOffset(offset)
 
