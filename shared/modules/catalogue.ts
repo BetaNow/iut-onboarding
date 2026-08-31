@@ -133,6 +133,16 @@ export const MODULE_CATALOGUE: ModuleDefinition[] = [
     //   { key: 'city', label: 'Ville', type: 'text', default: 'Bordeaux' }
     settings: [],
   },
+  {
+    id: 'horaires-tbm',
+    label: 'Horaires TBM',
+    icon: `${ICON}/program_manager-0.png`,
+    defaultDurationMs: 20000,
+    // Every field here becomes an input in the admin and a prop on the
+    // component, under this exact key:
+    //   { key: 'city', label: 'Ville', type: 'text', default: 'Bordeaux' }
+    settings: [],
+  },
 ]
 
 // Splits stored rows into the ones the catalogue still describes and the ones it

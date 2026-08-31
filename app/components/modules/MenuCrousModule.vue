@@ -25,14 +25,6 @@ const {
     daysAhead: 3,
   },
 })
-
-const restaurantName = computed(
-  () => data.value?.restaurantName ?? '(S)pace\' Campus - Resto U\'',
-)
-
-const restaurantCity = computed(
-  () => data.value?.restaurantCity ?? 'Pessac',
-)
 const days = computed(() => data.value?.days ?? [])
 
 const reason = computed(() => {
@@ -72,17 +64,6 @@ const reason = computed(() => {
       v-else-if="days.length"
       class="menu-crous__body"
     >
-      <div class="menu-crous__header">
-        <div>
-          <p class="menu-crous__restaurant">
-            {{ restaurantName }}
-          </p>
-          <p class="menu-crous__city">
-            {{ restaurantCity }}
-          </p>
-        </div>
-      </div>
-
       <div class="menu-crous__days">
         <section
           v-for="day in days"
@@ -176,11 +157,6 @@ const reason = computed(() => {
         Chargement du menu du CROUS…
       </p>
     </div>
-
-    <footer class="menu-crous__status">
-      <span>Prêt</span>
-      <span>Source : api.croustillant.menu</span>
-    </footer>
   </div>
 </template>
 
@@ -189,47 +165,53 @@ const reason = computed(() => {
   display: flex;
   height: 100%;
   flex-direction: column;
-  background: #c0c0c0;
+  background: transparent;
+  color: var(--w98-text);
   font-family: var(--w98-ui-font), sans-serif;
 }
 
 .menu-crous__chrome {
   display: flex;
+  flex: 0 0 auto;
   align-items: center;
   gap: 8px;
   padding: 4px 8px;
   background: linear-gradient(90deg, #000080, #1084d0);
-  color: #fff;
+  box-shadow: var(--w98-groove);
+  height: 10%;
 }
 
 .menu-crous__icon {
+  width: 50px;
+  height: 50px;
   image-rendering: pixelated;
-  width: 60px;
-  height: 60px;
 }
 
 .menu-crous__title {
+  font-size: var(--w98-ui-size);
   font-weight: 700;
+  color: white;
 }
 
 .menu-crous__toolbar {
   display: flex;
+  flex: 0 0 auto;
   gap: 12px;
   padding: 2px 8px;
-  background: #c0c0c0;
-  border-bottom: 1px solid #808080;
 
   span {
-    font-size: 12px;
+    font-size: var(--w98-ui-size);
+    color: var(--w98-text-dim);
   }
 }
 
 .menu-crous__body {
-  flex: 1;
-  padding: 8px 10px;
   display: flex;
+  min-height: 0;
+  flex: 1;
   flex-direction: column;
   gap: 10px;
+  padding: 10px 12px;
 }
 
 .menu-crous__body--empty {
@@ -239,118 +221,136 @@ const reason = computed(() => {
 
 .menu-crous__header {
   display: flex;
-  justify-content: space-between;
   align-items: flex-end;
-  padding: 6px 8px;
-  background: #d4d0c8;
-  border-width: 2px;
-  border-style: solid;
-  border-color: var(--w98-shadow) var(--w98-white) var(--w98-white) var(--w98-shadow);
+  justify-content: space-between;
+  padding: 8px 10px;
+  background: var(--w98-face);
+  box-shadow: var(--w98-raised);
 }
 
 .menu-crous__restaurant {
   margin: 0;
   font-weight: 700;
+  color: var(--w98-text);
 }
 
 .menu-crous__city {
   margin: 0;
-  font-size: 12px;
+  color: var(--w98-text-dim);
+  font-size: var(--w98-ui-size);
 }
 
 .menu-crous__hint {
   margin: 0;
-  font-size: 11px;
   color: var(--w98-text-dim);
+  font-size: 11px;
 }
 
 .menu-crous__days {
   display: flex;
   flex-direction: column;
-  width: 50%;
+  width: 60%;
+  max-width: 720px;
   margin: 0 auto;
+  gap: 10px;
 }
 
 .menu-crous__day-card {
-  background: #fff;
-  border-width: 2px;
-  border-style: solid;
-  border-color: var(--w98-shadow) var(--w98-white) var(--w98-white) var(--w98-shadow);
   display: flex;
   flex-direction: column;
+  background: #fff;
+  border: 1px solid var(--w98-shadow);
+  box-shadow: var(--w98-sunken);
 }
 
 .menu-crous__day-header {
   display: flex;
+  align-items: baseline;
   justify-content: space-between;
-  padding: 5px 6px;
-  background: #d4d0c8;
-  border-bottom: 1px solid #808080;
-  font-size: 12px;
+  padding: 6px 8px;
+  background: var(--w98-face);
+  box-shadow: var(--w98-groove);
+  font-size: var(--w98-ui-size);
 }
 
 .menu-crous__day-label {
+  font-size: 18px;
   font-weight: 700;
-  font-size: 25px;
+  color: var(--w98-text);
+}
+
+.menu-crous__day-date {
+  margin-left: 10px;
+  color: var(--w98-text-dim);
+  font-size: 14px;
 }
 
 .menu-crous__service {
+  color: black;
   font-size: 20px;
   font-style: italic;
+  margin-right: 5px;
 }
 
 .menu-crous__day-body {
-  padding: 6px 6px 8px;
+  padding: 8px 8px 10px;
+  border: 1px solid var(--w98-shadow);
 }
 
 .menu-crous__columns {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
+  gap: 8px;
+}
+
+.menu-crous__column {
+  padding: 6px 8px;
 }
 
 .menu-crous__column-title {
-  margin: 0 0 2px;
-  font-size: 20px;
+  margin: 0 0 4px;
+  color: black;
+  font-size: 25px;
   font-weight: 700;
 }
 
 .menu-crous__list {
   margin: 0;
   padding-left: 14px;
-  font-size: 12px;
+  font-size: var(--w98-ui-size);
+  color: var(--w98-text);
 
   li {
+    padding: 3px 0;
     margin-bottom: 2px;
-    font-size: 16px;
-    padding: 3px;
   }
 }
 
 .menu-crous__empty-line {
-  font-size: 18px;
+  margin: 0;
+  color: var(--w98-text-dim);
+  font-size: var(--w98-ui-size);
 }
 
 .menu-crous__empty-why {
-  font-size: 14px;
-  color: #b00;
+  margin: 0;
+  color: #b00000;
+  font-size: 12px;
 }
 
 .menu-crous__status {
   display: flex;
+  flex: 0 0 auto;
   justify-content: space-between;
-  padding: 2px 8px;
-  background: #d4d0c8;
-  border-top: 1px solid #ffffff;
-  font-size: 11px;
+  padding: 3px 8px;
+  box-shadow: var(--w98-groove);
+  font-size: var(--w98-ui-size);
+  color: var(--w98-text-dim);
 }
-.menu\-crous__day\-date {
-  font-size: 20px;
-  margin-left: 10px;
-}
+
 @media (max-width: 900px) {
   .menu-crous__days {
-    grid-template-columns: repeat(2, 1fr);
+    width: 100%;
   }
 
   .menu-crous__columns {
@@ -359,8 +359,14 @@ const reason = computed(() => {
 }
 
 @media (max-width: 600px) {
-  .menu-crous__days {
-    grid-template-columns: 1fr;
+  .menu-crous__day-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .menu-crous__day-date {
+    margin-left: 0;
   }
 }
 </style>
