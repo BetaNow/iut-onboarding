@@ -58,16 +58,6 @@ const reason = computed(() => {
   return body?.statusMessage ?? error.value?.statusMessage ?? error.value?.message
 })
 
-const lastUpdated = computed(() => {
-  if (!data.value) return '---'
-
-  return new Intl.DateTimeFormat('fr-FR', {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  }).format(new Date())
-})
-
 const weatherLabels: Record<number, string> = {
   0: 'Ciel dégagé',
   1: 'Peu nuageux',
@@ -330,31 +320,36 @@ function hourLabel(time: Date, index: number) {
         Chargement de la météo…
       </p>
     </div>
-
-    <!-- Barre de status -->
-    <footer class="weather98__status">
-      <span>Prêt</span>
-      <span>Actualisé à {{ lastUpdated }}</span>
-    </footer>
   </div>
 </template>
 
 <style scoped lang="scss">
-.weather98__small_condition {
-  font-size: 25px;
-
-}
-
 .weather98 {
+  --w98-page-bg: #ffffff;
+  --w98-box-bg: #ece9d8;
+  --w98-box-bg-alt: #f5f5f5;
+  --w98-header-bg: #d4d0c8;
+  --w98-shadow: var(--w98-shadow, #808080);
+  --w98-dark-shadow: var(--w98-dark-shadow, #404040);
+  --w98-white: var(--w98-white, #ffffff);
+  --w98-text: #000000;
+  --w98-muted: #555555;
+  --w98-warn: #b00000;
+  --w98-accent: #0a246a;
+
   display: flex;
   height: 100%;
   flex-direction: column;
-  background: #c0c0c0;
-  font-family: var(--w98-ui-font),serif;
+  background: var(--w98-page-bg);
+  color: var(--w98-text);
+  font-family: var(--w98-ui-font), serif;
 }
 
+// Barre de titre : seule zone à garder un fond de couleur pleine, comme un
+// bandeau d'application plutôt qu'un "holder" d'information.
 .weather98__chrome {
   display: flex;
+  flex: 0 0 auto;
   align-items: center;
   gap: 8px;
   padding: 6px 10px;
@@ -372,8 +367,8 @@ function hourLabel(time: Date, index: number) {
 
 .weather98__toolbar {
   flex: 0 0 14px;
-  border-bottom: 2px solid #808080;
-  background: #c0c0c0;
+  background: var(--w98-page-bg);
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .weather98__content {
@@ -381,20 +376,25 @@ function hourLabel(time: Date, index: number) {
   min-height: 0;
   flex: 1;
   flex-direction: column;
-  gap: 10px;
-  padding: 10px 14px;
-  background: #c0c0c0;
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--w98-page-bg);
 }
 
+// ---------------------------------------------------------------------------
+// Bloc météo actuelle : la boîte la plus importante, donc le contraste le
+// plus fort avec la page blanche.
+// ---------------------------------------------------------------------------
 .weather98__current {
   display: grid;
   grid-template-columns: auto 1fr auto;
-  gap: 12px;
-  padding: 8px;
-  background: #fff;
+  gap: 14px;
+  padding: 12px;
+  background: var(--w98-box-bg);
   border-width: 2px;
   border-style: solid;
-  border-color: var(--w98-shadow) var(--w98-white) var(--w98-white) var(--w98-shadow);
+  border-color: var(--w98-white) var(--w98-dark-shadow) var(--w98-dark-shadow) var(--w98-white);
+  box-shadow: inset 1px 1px 0 var(--w98-shadow);
 }
 
 .weather98__current-icon img {
@@ -410,26 +410,32 @@ function hourLabel(time: Date, index: number) {
 
 .weather98__temp {
   margin: 0;
-  font-size: 26px;
+  color: var(--w98-accent);
+  font-size: 28px;
   font-weight: 700;
 }
 
 .weather98__feels {
   margin: 4px 0 0;
+  color: var(--w98-muted);
 }
 
 .weather98__current-stats {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
+  padding-left: 10px;
+  border-left: 1px solid var(--w98-shadow);
   text-align: right;
 
   span {
     font-size: 11px;
+    color: var(--w98-muted);
   }
 
   strong {
     display: block;
+    font-size: 15px;
   }
 
   span.weather98__small_condition {
@@ -437,24 +443,29 @@ function hourLabel(time: Date, index: number) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Prévisions horaires : boîtes plus claires, en léger retrait pour marquer
+// une hiérarchie sous le bloc principal.
+// ---------------------------------------------------------------------------
 .weather98__hourly {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 6px;
-  margin-top: 4px;
+  gap: 8px;
+  margin-top: 2px;
 }
 
 .weather98__hourly-card {
-  background: #fff;
+  background: var(--w98-box-bg-alt);
   border-width: 2px;
   border-style: solid;
-  border-color: var(--w98-shadow) var(--w98-white) var(--w98-white) var(--w98-shadow);
+  border-color: var(--w98-white) var(--w98-shadow) var(--w98-shadow) var(--w98-white);
 }
 
 .weather98__hourly-header {
-  padding: 2px 4px;
-  background: #d4d0c8;
-  border-bottom: 1px solid #808080;
+  padding: 3px 4px;
+  background: var(--w98-header-bg);
+  border-bottom: 1px solid var(--w98-shadow);
+  color: var(--w98-text);
   text-align: center;
   font-size: 11px;
   font-weight: 700;
@@ -463,8 +474,8 @@ function hourLabel(time: Date, index: number) {
 .weather98__hourly-body {
   display: grid;
   justify-items: center;
-  gap: 2px;
-  padding: 4px 2px 6px;
+  gap: 3px;
+  padding: 6px 2px 8px;
 }
 
 .weather98__hourly-icon {
@@ -485,26 +496,31 @@ function hourLabel(time: Date, index: number) {
 }
 
 .weather98__hourly-rain {
+  color: var(--w98-accent);
   font-size: 10px;
 }
 
+// ---------------------------------------------------------------------------
+// Prévisions journalières : contraste intermédiaire entre le bloc principal
+// et les cartes horaires.
+// ---------------------------------------------------------------------------
 .weather98__forecast {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  gap: 10px;
 }
 
 .weather98__forecast-card {
-  background: #fff;
+  background: var(--w98-box-bg);
   border-width: 2px;
   border-style: solid;
-  border-color: var(--w98-shadow) var(--w98-white) var(--w98-white) var(--w98-shadow);
+  border-color: var(--w98-white) var(--w98-dark-shadow) var(--w98-dark-shadow) var(--w98-white);
 }
 
 .weather98__forecast-header {
-  padding: 2px 4px;
-  background: #d4d0c8;
-  border-bottom: 1px solid #808080;
+  padding: 3px 4px;
+  background: var(--w98-header-bg);
+  border-bottom: 1px solid var(--w98-shadow);
   text-align: center;
   font-weight: 700;
 }
@@ -512,8 +528,8 @@ function hourLabel(time: Date, index: number) {
 .weather98__forecast-body {
   display: grid;
   justify-items: center;
-  gap: 4px;
-  padding: 6px 4px 8px;
+  gap: 5px;
+  padding: 8px 4px 10px;
 }
 
 .weather98__forecast-icon {
@@ -530,24 +546,28 @@ function hourLabel(time: Date, index: number) {
 
 .weather98__forecast-temps {
   display: flex;
-  gap: 8px;
+  gap: 10px;
 }
 
 .weather98__forecast-min {
+  color: var(--w98-muted);
   font-size: 12px;
 }
 
 .weather98__forecast-max {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
 }
 
 .weather98__forecast-rain {
+  color: var(--w98-muted);
   font-size: 11px;
-  padding-left: 10px;
+  padding-left: 4px;
 }
 
-/* États vides / erreur */
+// ---------------------------------------------------------------------------
+// États vides / erreur : boîte neutre, mais toujours visible sur le blanc.
+// ---------------------------------------------------------------------------
 .weather98__empty {
   display: flex;
   flex: 1;
@@ -555,25 +575,35 @@ function hourLabel(time: Date, index: number) {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: #c0c0c0;
+  margin: 14px 16px;
+  padding: 20px;
+  background: var(--w98-box-bg-alt);
+  border-width: 2px;
+  border-style: solid;
+  border-color: var(--w98-white) var(--w98-shadow) var(--w98-shadow) var(--w98-white);
 }
 
 .weather98__empty-line {
-  font-size: 20px;
+  margin: 0;
+  color: var(--w98-muted);
+  font-size: 18px;
 }
 
 .weather98__empty-why {
-  font-size: 14px;
-  color: #b00;
+  margin: 0;
+  color: var(--w98-warn);
+  font-size: 13px;
 }
 
-/* Status bar */
+// Barre de statut : si tu l'ajoutes plus tard, elle reste dans le même
+// vocabulaire de contraste que le bandeau supérieur.
 .weather98__status {
   display: flex;
+  flex: 0 0 auto;
   justify-content: space-between;
-  padding: 2px 8px;
-  background: #d4d0c8;
-  border-top: 1px solid #ffffff;
+  padding: 3px 8px;
+  background: var(--w98-header-bg);
+  border-top: 1px solid var(--w98-white);
   font-size: 11px;
 }
 
@@ -584,9 +614,13 @@ function hourLabel(time: Date, index: number) {
 
   .weather98__current-stats {
     grid-column: 1 / -1;
+    padding-left: 0;
+    margin-top: 6px;
+    border-left: none;
+    border-top: 1px solid var(--w98-shadow);
+    padding-top: 8px;
     align-items: flex-start;
     text-align: left;
-    margin-top: 6px;
   }
 
   .weather98__hourly {

@@ -1,12 +1,10 @@
-// server/utils/tbm-parser.ts
-import type { StopMonitoringResponse, TbmPassage, TbmStopConfig } from '~/types/siri'
+import GtfsRealtimeBindings from 'gtfs-realtime-bindings'
 import type {
-  TbmNetworkIncident,
   TbmNetworkLevel,
+  TbmNetworkIncident,
   TbmNetworkService,
   TbmNetworkStatus,
 } from '#shared/types/tbm-network.ts'
-import GtfsRealtimeBindings from 'gtfs-realtime-bindings'
 
 const TRACKED_LINES = {
   bus: {
@@ -34,9 +32,10 @@ const getWorstLevel = (
   current: TbmNetworkLevel,
   candidate: TbmNetworkLevel,
 ): TbmNetworkLevel => {
-  return LEVEL_PRIORITY[candidate] > LEVEL_PRIORITY[current]
-    ? candidate
-    : current
+  const currentPriority = LEVEL_PRIORITY[current] ?? 0
+  const candidatePriority = LEVEL_PRIORITY[candidate] ?? 0
+
+  return candidatePriority > currentPriority ? candidate : current
 }
 
 const getLevelFromEffect = (
@@ -60,13 +59,13 @@ const getLevelFromEffect = (
   }
 }
 
-const getTranslatedText = (
+const getText = (
   translated?: GtfsRealtimeBindings.transit_realtime.ITranslatedString | null,
 ): string | null => {
   const translations = translated?.translation ?? []
 
-  const frenchTranslation = translations.find(item =>
-    item.language?.toLowerCase().startsWith('fr'),
+  const frenchTranslation = translations.find(translation =>
+    translation.language?.toLowerCase().startsWith('fr'),
   )
 
   return frenchTranslation?.text
@@ -75,29 +74,18 @@ const getTranslatedText = (
 }
 
 const getAlertMessage = (
-  alert: GtfsRealtimeBindings.transit_realtime.IAlert,
+  gtfsAlert: GtfsRealtimeBindings.transit_realtime.IAlert,
 ): string => {
-  return getTranslatedText(alert.descriptionText)
-    ?? getTranslatedText(alert.headerText)
+  return getText(gtfsAlert.descriptionText)
+    ?? getText(gtfsAlert.headerText)
     ?? 'Information trafic communiquée par TBM.'
 }
 
-/*
- * Une alerte peut être associée :
- *
- * - à une ligne via informedEntity.routeId ;
- * - à un trajet via informedEntity.trip.routeId ;
- * - au réseau entier lorsqu'elle ne contient aucune informedEntity.
- *
- * Une alerte globale est affichée pour Bus et Tram, car elle concerne tout
- * le réseau TBM.
- */
 const alertTargetsLine = (
-  alert: GtfsRealtimeBindings.transit_realtime.IAlert,
+  gtfsAlert: GtfsRealtimeBindings.transit_realtime.IAlert,
   lineRef: string,
 ): boolean => {
-  const entities = alert.informedEntity ?? []
-
+  const entities = gtfsAlert.informedEntity ?? []
   if (entities.length === 0) {
     return true
   }
@@ -109,21 +97,32 @@ const alertTargetsLine = (
 }
 
 export const parseTbmAlerts = (
-  raw: ArrayBuffer,
+  buffer: ArrayBuffer,
 ): TbmNetworkStatus => {
   const feed = GtfsRealtimeBindings.transit_realtime.FeedMessage.decode(
-    new Uint8Array(raw),
+    new Uint8Array(buffer),
+  )
+  console.log(
+    JSON.stringify(
+      feed.entity?.map(entity => ({
+        id: entity.id,
+        effect: entity.alert?.effect,
+        informedEntity: entity.alert?.informedEntity,
+      })),
+      null,
+      2,
+    ),
   )
 
   const services: TbmNetworkService[] = [
     {
-      id: 'bus',
-      label: 'Bus',
+      id: TRACKED_LINES.bus.id,
+      label: TRACKED_LINES.bus.label,
       level: 'normal',
     },
     {
-      id: 'tram',
-      label: 'Tram',
+      id: TRACKED_LINES.tram.id,
+      label: TRACKED_LINES.tram.label,
       level: 'normal',
     },
   ]
@@ -135,14 +134,14 @@ export const parseTbmAlerts = (
       continue
     }
 
-    const alert = entity.alert
-    const level = getLevelFromEffect(alert.effect)
-    const message = getAlertMessage(alert)
+    const gtfsAlert = entity.alert
+    const level = getLevelFromEffect(gtfsAlert.effect)
+    const message = getAlertMessage(gtfsAlert)
 
     const affectedLines = [
       TRACKED_LINES.bus,
       TRACKED_LINES.tram,
-    ].filter(line => alertTargetsLine(alert, line.lineRef))
+    ].filter(line => alertTargetsLine(gtfsAlert, line.lineRef))
 
     for (const line of affectedLines) {
       const service = services.find(item => item.id === line.id)
@@ -167,30 +166,4 @@ export const parseTbmAlerts = (
     services,
     incidents,
   }
-}
-
-export function parseStopMonitoring(raw: StopMonitoringResponse, meta: TbmStopConfig): TbmPassage[] {
-  const visits = raw.Siri.ServiceDelivery.StopMonitoringDelivery?.[0]?.MonitoredStopVisit ?? []
-  const now = Date.now()
-
-  return visits
-    .map((visit): TbmPassage => {
-      const call = visit.MonitoredVehicleJourney?.MonitoredCall
-      const arrivalTime = call?.ExpectedArrivalTime ?? call?.AimedArrivalTime
-
-      const minutes = arrivalTime
-        ? Math.max(0, Math.round((new Date(arrivalTime).getTime() - now) / 60000))
-        : null
-
-      const destination = visit.MonitoredVehicleJourney?.DestinationName?.[0]?.value ?? meta.direction
-
-      return {
-        ligne: meta.label,
-        destination,
-        minutes,
-        tempsReel: Boolean(call?.ExpectedArrivalTime),
-        arretRef: visit.MonitoringRef?.value ?? meta.ref,
-      }
-    })
-    .sort((a, b) => (a.minutes ?? Number.POSITIVE_INFINITY) - (b.minutes ?? Number.POSITIVE_INFINITY))
 }

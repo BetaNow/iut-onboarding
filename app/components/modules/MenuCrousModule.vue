@@ -176,11 +176,6 @@ const reason = computed(() => {
         Chargement du menu du CROUS…
       </p>
     </div>
-
-    <footer class="menu-crous__status">
-      <span>Prêt</span>
-      <span>Source : api.croustillant.menu</span>
-    </footer>
   </div>
 </template>
 
