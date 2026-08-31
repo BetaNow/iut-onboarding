@@ -33,10 +33,7 @@ const props = withDefaults(defineProps<{
   longitude: -0.5792,
 })
 
-const {
-  data,
-  error,
-} = useLazyFetch<OpenMeteoResponse>('https://api.open-meteo.com/v1/forecast', {
+const _weatherFetch = useLazyFetch('https://api.open-meteo.com/v1/forecast', {
   query: {
     latitude: props.latitude,
     longitude: props.longitude,
@@ -46,7 +43,9 @@ const {
     timezone: 'Europe/Paris',
     forecast_days: 3,
   },
-})
+}) as { data: Ref<OpenMeteoResponse | undefined>, error: Ref }
+
+const { data, error } = _weatherFetch
 
 const current = computed(() => data.value?.current)
 const daily = computed(() => data.value?.daily)
@@ -329,9 +328,10 @@ function hourLabel(time: Date, index: number) {
   --w98-box-bg: #ece9d8;
   --w98-box-bg-alt: #f5f5f5;
   --w98-header-bg: #d4d0c8;
-  --w98-shadow: var(--w98-shadow, #808080);
-  --w98-dark-shadow: var(--w98-dark-shadow, #404040);
-  --w98-white: var(--w98-white, #ffffff);
+  --w98-shadow: #808080;
+  --w98-dark-shadow: #404040;
+  --w98-border-light: #c0c0c0;
+  --w98-white: #ffffff;
   --w98-text: #000000;
   --w98-muted: #555555;
   --w98-warn: #b00000;
@@ -345,8 +345,6 @@ function hourLabel(time: Date, index: number) {
   font-family: var(--w98-ui-font), serif;
 }
 
-// Barre de titre : seule zone à garder un fond de couleur pleine, comme un
-// bandeau d'application plutôt qu'un "holder" d'information.
 .weather98__chrome {
   display: flex;
   flex: 0 0 auto;
@@ -355,6 +353,7 @@ function hourLabel(time: Date, index: number) {
   padding: 6px 10px;
   background: linear-gradient(90deg, #000080, #1084d0);
   color: #fff;
+  height: 10%;
 }
 
 .weather98__icon {
@@ -382,19 +381,18 @@ function hourLabel(time: Date, index: number) {
 }
 
 // ---------------------------------------------------------------------------
-// Bloc météo actuelle : la boîte la plus importante, donc le contraste le
-// plus fort avec la page blanche.
+// Bordure 2px à 4 couleurs, SANS blanc pur pour rester visible sur fond
+// blanc. Sunken : sombre en haut/gauche, gris clair en bas/droite.
 // ---------------------------------------------------------------------------
 .weather98__current {
   display: grid;
   grid-template-columns: auto 1fr auto;
   gap: 14px;
   padding: 12px;
-  background: var(--w98-box-bg);
+  background: #fff;
   border-width: 2px;
   border-style: solid;
-  border-color: var(--w98-white) var(--w98-dark-shadow) var(--w98-dark-shadow) var(--w98-white);
-  box-shadow: inset 1px 1px 0 var(--w98-shadow);
+  border-color: var(--w98-dark-shadow) var(--w98-border-light) var(--w98-border-light) var(--w98-dark-shadow);
 }
 
 .weather98__current-icon img {
@@ -443,10 +441,6 @@ function hourLabel(time: Date, index: number) {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Prévisions horaires : boîtes plus claires, en léger retrait pour marquer
-// une hiérarchie sous le bloc principal.
-// ---------------------------------------------------------------------------
 .weather98__hourly {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
@@ -454,11 +448,12 @@ function hourLabel(time: Date, index: number) {
   margin-top: 2px;
 }
 
+// Raised : gris clair en haut/gauche, sombre en bas/droite.
 .weather98__hourly-card {
-  background: var(--w98-box-bg-alt);
+  background: #fff;
   border-width: 2px;
   border-style: solid;
-  border-color: var(--w98-white) var(--w98-shadow) var(--w98-shadow) var(--w98-white);
+  border-color: var(--w98-border-light) var(--w98-shadow) var(--w98-shadow) var(--w98-border-light);
 }
 
 .weather98__hourly-header {
@@ -500,10 +495,6 @@ function hourLabel(time: Date, index: number) {
   font-size: 10px;
 }
 
-// ---------------------------------------------------------------------------
-// Prévisions journalières : contraste intermédiaire entre le bloc principal
-// et les cartes horaires.
-// ---------------------------------------------------------------------------
 .weather98__forecast {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -511,10 +502,10 @@ function hourLabel(time: Date, index: number) {
 }
 
 .weather98__forecast-card {
-  background: var(--w98-box-bg);
+  background: #fff;
   border-width: 2px;
   border-style: solid;
-  border-color: var(--w98-white) var(--w98-dark-shadow) var(--w98-dark-shadow) var(--w98-white);
+  border-color: var(--w98-dark-shadow) var(--w98-border-light) var(--w98-border-light) var(--w98-dark-shadow);
 }
 
 .weather98__forecast-header {
@@ -565,9 +556,6 @@ function hourLabel(time: Date, index: number) {
   padding-left: 4px;
 }
 
-// ---------------------------------------------------------------------------
-// États vides / erreur : boîte neutre, mais toujours visible sur le blanc.
-// ---------------------------------------------------------------------------
 .weather98__empty {
   display: flex;
   flex: 1;
@@ -580,7 +568,7 @@ function hourLabel(time: Date, index: number) {
   background: var(--w98-box-bg-alt);
   border-width: 2px;
   border-style: solid;
-  border-color: var(--w98-white) var(--w98-shadow) var(--w98-shadow) var(--w98-white);
+  border-color: var(--w98-border-light) var(--w98-shadow) var(--w98-shadow) var(--w98-border-light);
 }
 
 .weather98__empty-line {
@@ -595,8 +583,6 @@ function hourLabel(time: Date, index: number) {
   font-size: 13px;
 }
 
-// Barre de statut : si tu l'ajoutes plus tard, elle reste dans le même
-// vocabulaire de contraste que le bandeau supérieur.
 .weather98__status {
   display: flex;
   flex: 0 0 auto;

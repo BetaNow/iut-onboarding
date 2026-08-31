@@ -132,12 +132,6 @@ const getTransportAlt = (type: string) => {
           alt=""
           class="tbm__transport-icon"
         >
-        <span class="tbm__banner-separator">/</span>
-        <img
-          :src="TRANSPORT_ICONS.tram"
-          alt=""
-          class="tbm__transport-icon"
-        >
       </span>
 
       <span class="tbm__banner-title">
@@ -273,8 +267,8 @@ const getTransportAlt = (type: string) => {
 }
 
 .tbm__transport-icon {
-  width: 24px;
-  height: 24px;
+  width: 60px;
+  height: 40px;
   image-rendering: pixelated;
 }
 
@@ -284,8 +278,9 @@ const getTransportAlt = (type: string) => {
   align-items: center;
   gap: 10px;
   padding: 8px 14px;
-  background: var(--tbm-blue);
+  background: linear-gradient(90deg, #000080, #1084d0);
   color: var(--tbm-white);
+  height: 10%;
 }
 
 .tbm__banner-icon {
@@ -341,7 +336,7 @@ const getTransportAlt = (type: string) => {
 
 .tbm__section-icon {
   width: auto;
-  height: 22px;
+  height: 30px;
   margin-left: 5px;
   image-rendering: pixelated;
 }
