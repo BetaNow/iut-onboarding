@@ -35,30 +35,18 @@ const reason = computed(() => {
 
 <template>
   <div class="menu-crous">
-    <div class="menu-crous__chrome">
-      <img
-        class="menu-crous__icon"
-        src="/img/logo-crous.png"
-        alt="Crous logo"
-        width="250"
-        height="250"
-      >
-      <span class="menu-crous__title">
-        Menu CROUS – (S)pace' Campus
-      </span>
-    </div>
+    <Win98ModuleBanner
+      icon="/img/logo-crous.png"
+      icon-alt="Crous logo"
+      title="Menu CROUS – (S)pace' Campus"
+    />
 
-    <div
+    <Win98ModuleStatus
       v-if="error"
-      class="menu-crous__body menu-crous__body--empty"
-    >
-      <p class="menu-crous__empty-line">
-        Le menu du CROUS n’a pas pu être chargé.
-      </p>
-      <p class="menu-crous__empty-why">
-        {{ reason }}
-      </p>
-    </div>
+      tone="warn"
+      line="Le menu du CROUS n’a pas pu être chargé."
+      :detail="reason"
+    />
 
     <div
       v-else-if="days.length"
@@ -149,14 +137,10 @@ const reason = computed(() => {
       </div>
     </div>
 
-    <div
+    <Win98ModuleStatus
       v-else
-      class="menu-crous__body menu-crous__body--empty"
-    >
-      <p class="menu-crous__empty-line">
-        Chargement du menu du CROUS…
-      </p>
-    </div>
+      line="Chargement du menu du CROUS…"
+    />
   </div>
 </template>
 
@@ -170,41 +154,6 @@ const reason = computed(() => {
   font-family: var(--w98-ui-font), sans-serif;
 }
 
-.menu-crous__chrome {
-  display: flex;
-  flex: 0 0 auto;
-  align-items: center;
-  gap: 8px;
-  padding: 4px 8px;
-  background: linear-gradient(90deg, #000080, #1084d0);
-  box-shadow: var(--w98-groove);
-  height: 10%;
-}
-
-.menu-crous__icon {
-  width: 50px;
-  height: 50px;
-  image-rendering: pixelated;
-}
-
-.menu-crous__title {
-  font-size: var(--w98-ui-size);
-  font-weight: 700;
-  color: white;
-}
-
-.menu-crous__toolbar {
-  display: flex;
-  flex: 0 0 auto;
-  gap: 12px;
-  padding: 2px 8px;
-
-  span {
-    font-size: var(--w98-ui-size);
-    color: var(--w98-text-dim);
-  }
-}
-
 .menu-crous__body {
   display: flex;
   min-height: 0;
@@ -212,38 +161,6 @@ const reason = computed(() => {
   flex-direction: column;
   gap: 10px;
   padding: 10px 12px;
-}
-
-.menu-crous__body--empty {
-  align-items: center;
-  justify-content: center;
-}
-
-.menu-crous__header {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  padding: 8px 10px;
-  background: var(--w98-face);
-  box-shadow: var(--w98-raised);
-}
-
-.menu-crous__restaurant {
-  margin: 0;
-  font-weight: 700;
-  color: var(--w98-text);
-}
-
-.menu-crous__city {
-  margin: 0;
-  color: var(--w98-text-dim);
-  font-size: var(--w98-ui-size);
-}
-
-.menu-crous__hint {
-  margin: 0;
-  color: var(--w98-text-dim);
-  font-size: 11px;
 }
 
 .menu-crous__days {
@@ -255,26 +172,26 @@ const reason = computed(() => {
   gap: 10px;
 }
 
+// Same recipe as the TBM stop cards: a raised tile on the face, holding a
+// sunken white document well. One bevel language for "a card of content"
+// across every module.
 .menu-crous__day-card {
   display: flex;
   flex-direction: column;
-  background: #fff;
-  border: 1px solid var(--w98-shadow);
-  box-shadow: var(--w98-sunken);
+  background: var(--w98-face);
+  box-shadow: var(--w98-raised);
 }
 
 .menu-crous__day-header {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  padding: 6px 8px;
-  background: var(--w98-face);
+  padding: 6px 10px;
   box-shadow: var(--w98-groove);
-  font-size: var(--w98-ui-size);
 }
 
 .menu-crous__day-label {
-  font-size: 18px;
+  font-size: var(--w98-ui-size);
   font-weight: 700;
   color: var(--w98-text);
 }
@@ -282,19 +199,20 @@ const reason = computed(() => {
 .menu-crous__day-date {
   margin-left: 10px;
   color: var(--w98-text-dim);
-  font-size: 14px;
+  font-size: var(--w98-ui-size-sm);
 }
 
 .menu-crous__service {
-  color: black;
-  font-size: 20px;
+  color: var(--w98-text);
+  font-size: var(--w98-ui-size);
   font-style: italic;
   margin-right: 5px;
 }
 
 .menu-crous__day-body {
   padding: 8px 8px 10px;
-  border: 1px solid var(--w98-shadow);
+  background: var(--w98-white);
+  box-shadow: var(--w98-sunken);
 }
 
 .menu-crous__columns {
@@ -309,8 +227,8 @@ const reason = computed(() => {
 
 .menu-crous__column-title {
   margin: 0 0 4px;
-  color: black;
-  font-size: 25px;
+  color: var(--w98-text);
+  font-size: var(--w98-ui-size);
   font-weight: 700;
 }
 
@@ -324,28 +242,6 @@ const reason = computed(() => {
     padding: 3px 0;
     margin-bottom: 2px;
   }
-}
-
-.menu-crous__empty-line {
-  margin: 0;
-  color: var(--w98-text-dim);
-  font-size: var(--w98-ui-size);
-}
-
-.menu-crous__empty-why {
-  margin: 0;
-  color: #b00000;
-  font-size: 12px;
-}
-
-.menu-crous__status {
-  display: flex;
-  flex: 0 0 auto;
-  justify-content: space-between;
-  padding: 3px 8px;
-  box-shadow: var(--w98-groove);
-  font-size: var(--w98-ui-size);
-  color: var(--w98-text-dim);
 }
 
 @media (max-width: 900px) {

@@ -79,12 +79,11 @@ const getStatusAsset = (level: TbmNetworkLevel): StatusAsset => {
       </h2>
     </div>
 
-    <div
+    <Win98ModuleStatus
       v-if="error"
-      class="tbm-network__error"
-    >
-      État du réseau indisponible.
-    </div>
+      tone="warn"
+      line="État du réseau indisponible."
+    />
 
     <div
       v-else-if="networkData"
@@ -152,43 +151,30 @@ const getStatusAsset = (level: TbmNetworkLevel): StatusAsset => {
       </div>
     </div>
 
-    <div
+    <Win98ModuleStatus
       v-else
-      class="tbm-network__loading"
-    >
-      Chargement de l’état du réseau...
-    </div>
+      line="Chargement de l’état du réseau..."
+    />
   </section>
 </template>
 
 <style scoped lang="scss">
 .tbm-network {
-  --tbm-face: var(--w98-face, #c0c0c0);
-  --tbm-shadow: var(--w98-shadow, #808080);
-  --tbm-dark-shadow: var(--w98-dark-shadow, #404040);
-  --tbm-white: var(--w98-white, #fff);
-  --tbm-blue: #0a246a;
-  --tbm-muted: #555;
-  --tbm-warn: #b00000;
-
   min-width: 0;
-  border: 2px solid;
-  border-color: var(--tbm-white) var(--tbm-dark-shadow) var(--tbm-dark-shadow) var(--tbm-white);
-  background: var(--tbm-face);
-  color: #000;
+  background: var(--w98-face);
+  box-shadow: var(--w98-raised);
+  color: var(--w98-text);
   font-family: var(--w98-ui-font), sans-serif;
 }
 
 .tbm-network__titlebar {
-  padding-top: 12px;
-  padding-left: 10px;
-  color: var(--tbm-white);
+  padding: 12px 10px 0;
 }
 
 .tbm-network__title {
-  color: #0a0a0a;
   margin: 0;
-  font-size: 16px;
+  color: var(--w98-text);
+  font-size: var(--w98-ui-size);
   font-weight: 700;
 }
 
@@ -202,16 +188,15 @@ const getStatusAsset = (level: TbmNetworkLevel): StatusAsset => {
 .tbm-network__summary,
 .tbm-network__incidents {
   min-width: 0;
-  padding: 7px 9px;
-  border: 2px solid;
-  border-color: var(--tbm-shadow) var(--tbm-white) var(--tbm-white) var(--tbm-shadow);
-  background: var(--tbm-white);
+  padding: 9px 11px;
+  background: var(--w98-white);
+  box-shadow: var(--w98-sunken);
 }
 
 .tbm-network__heading {
   margin: 0 0 8px;
-  color: var(--tbm-muted);
-  font-size: 12px;
+  color: var(--w98-text-dim);
+  font-size: var(--w98-ui-size-sm);
   font-weight: 700;
 }
 
@@ -230,7 +215,7 @@ const getStatusAsset = (level: TbmNetworkLevel): StatusAsset => {
 
 .tbm-network__service-label {
   min-width: 42px;
-  font-size: 15px;
+  font-size: var(--w98-ui-size);
   font-weight: 700;
 }
 
@@ -241,19 +226,10 @@ const getStatusAsset = (level: TbmNetworkLevel): StatusAsset => {
   image-rendering: pixelated;
 }
 
-.tbm-network__updated {
-  margin: 9px 0 0;
-  padding-top: 5px;
-  border-top: 1px solid var(--tbm-face);
-  color: var(--tbm-muted);
-  font-size: 11px;
-  font-style: italic;
-}
-
 .tbm-network__incident-list {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
   padding: 0;
   margin: 0;
   list-style: none;
@@ -264,7 +240,6 @@ const getStatusAsset = (level: TbmNetworkLevel): StatusAsset => {
   align-items: flex-start;
   gap: 7px;
   padding: 4px 5px;
-  border: 1px solid transparent;
 }
 
 .tbm-network__incident-icon {
@@ -277,7 +252,7 @@ const getStatusAsset = (level: TbmNetworkLevel): StatusAsset => {
 
 .tbm-network__incident-text {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--w98-ui-size);
   line-height: 1.25;
 }
 
@@ -285,21 +260,7 @@ const getStatusAsset = (level: TbmNetworkLevel): StatusAsset => {
   margin: 0;
   padding: 5px;
   color: #087308;
-  font-size: 13px;
-}
-
-.tbm-network__loading,
-.tbm-network__error {
-  padding: 12px;
-  border: 2px solid;
-  border-color: var(--tbm-shadow) var(--tbm-white) var(--tbm-white) var(--tbm-shadow);
-  background: var(--tbm-white);
-  color: var(--tbm-muted);
-  font-size: 13px;
-}
-
-.tbm-network__error {
-  color: var(--tbm-warn);
+  font-size: var(--w98-ui-size);
 }
 
 @media (max-width: 820px) {

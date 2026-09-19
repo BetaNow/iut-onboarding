@@ -9,8 +9,8 @@ const ICON = '/windows98-icons/png'
 // One step back: left by a nudge, up by a title bar plus whatever the season
 // grows on its top edge. Stage pixels, not scaled with the copies, because the
 // season's material is a fixed height and the step has to clear it.
-const STEP_X = 13
-const STEP_Y = 56
+const STEP_X = 48
+const STEP_Y = 42
 
 const props = withDefaults(defineProps<{
   title: string

@@ -28,7 +28,7 @@ defineProps<{
 
   &__label {
     position: absolute;
-    top: 0;
+    top: 4px;
     left: 12px;
     padding: 0 6px;
     background: var(--w98-face);

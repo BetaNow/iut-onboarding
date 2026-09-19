@@ -59,4 +59,7 @@
   // 2x. Win98 used one UI size everywhere, so this is the authentic choice too.
   --w98-ui-size: 22px;
   --w98-ui-size-sm: 11px;
+  // The one hero tier: a current temperature, a big banner title. Used
+  // sparingly, the way Win98 itself only went large in a handful of places.
+  --w98-ui-size-lg: 34px;
 }

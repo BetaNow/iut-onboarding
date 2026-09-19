@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Meme } from '#shared/types/memeResponse'
+import type {Meme} from '#shared/types/memeResponse'
 
 // These names are settings keys as they are written in the database: the
 // catalogue declares them, and the admin saves them under exactly these keys.
@@ -12,7 +12,7 @@ const props = defineProps<{
 // The row carries a subreddit per department; this module reads the one for the
 // screen it is running on.
 const subreddit = computed(() =>
-  (props.department === 'sgm' ? props.subreddit_sgm : props.subreddit_info) ?? 'ProgrammerHumor',
+    (props.department === 'sgm' ? props.subreddit_sgm : props.subreddit_info) ?? 'ProgrammerHumor',
 )
 
 // Lazy and not awaited: an awaited useFetch makes setup async, and swapping a
@@ -21,7 +21,7 @@ const subreddit = computed(() =>
 //
 // No refresh timer either. The rotation re-mounts the component every time it
 // comes back round, which re-runs the fetch.
-const { data, error } = useLazyFetch<Meme>('/api/meme', {
+const {data, error} = useLazyFetch<Meme>('/api/meme', {
   query: {
     subreddit,
     department: props.department,
@@ -46,8 +46,7 @@ const domain = computed(() => {
 
   try {
     return new URL(data.value.url).hostname.replace(/^www\./, '')
-  }
-  catch {
+  } catch {
     return 'i.redd.it'
   }
 })
@@ -68,22 +67,22 @@ const reason = computed(() => {
          the machine rendering it. -->
     <div class="reddit__chrome">
       <img
-        class="reddit__snoo"
-        src="/img/reddit.png"
-        alt=""
-        width="44"
-        height="44"
+          class="reddit__snoo"
+          src="/img/logo-reddit.png"
+          alt=""
+          width="44"
+          height="44"
       >
       <span class="reddit__wordmark">reddit</span>
       <!-- From the prop, not the response: the subreddit is known even when the
            fetch fails, so the chrome stays whole on the error state. -->
       <span class="reddit__sub">r/{{ subreddit }}</span>
     </div>
-    <div class="reddit__tabs" />
+    <div class="reddit__tabs"/>
 
     <div
-      v-if="error"
-      class="reddit__empty"
+        v-if="error"
+        class="reddit__empty"
     >
       <p class="reddit__empty-line">
         there doesn't seem to be anything here
@@ -94,16 +93,16 @@ const reason = computed(() => {
     </div>
 
     <div
-      v-else-if="data"
-      class="reddit__post"
+        v-else-if="data"
+        class="reddit__post"
     >
       <!-- The midcol: the one place colour is spent. -->
       <div class="reddit__votes">
-        <span class="reddit__arrow reddit__arrow--up" />
+        <span class="reddit__arrow reddit__arrow--up"/>
         <!-- Reddit prints a dot while a post's score is hidden. The panel never
              stores the upvote count, so the dot is the truthful reading. -->
         <span class="reddit__score">•</span>
-        <span class="reddit__arrow reddit__arrow--down" />
+        <span class="reddit__arrow reddit__arrow--down"/>
       </div>
 
       <div class="reddit__entry">
@@ -113,14 +112,15 @@ const reason = computed(() => {
         </p>
 
         <p class="reddit__tagline">
-          submitted by <span class="reddit__author">{{ data.author }}</span> to <span class="reddit__sublink">r/{{ data.subreddit }}</span>
+          submitted by <span class="reddit__author">{{ data.author }}</span> to <span
+            class="reddit__sublink">r/{{ data.subreddit }}</span>
         </p>
 
         <div class="reddit__expando">
           <img
-            v-if="imageSrc"
-            :src="imageSrc"
-            :alt="data.title"
+              v-if="imageSrc"
+              :src="imageSrc"
+              :alt="data.title"
           >
         </div>
 
@@ -131,8 +131,8 @@ const reason = computed(() => {
     </div>
 
     <div
-      v-else
-      class="reddit__empty"
+        v-else
+        class="reddit__empty"
     >
       <p class="reddit__empty-line">
         loading...
@@ -318,6 +318,7 @@ const reason = computed(() => {
   align-items: center;
   justify-content: center;
   gap: 10px;
+  padding: 24px;
 }
 
 .reddit__empty-line {

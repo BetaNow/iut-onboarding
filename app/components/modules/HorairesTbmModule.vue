@@ -122,35 +122,17 @@ const getTransportAlt = (type: string) => {
 
 <template>
   <div class="tbm">
-    <div class="tbm__banner">
-      <span
-        class="tbm__banner-icon"
-        aria-hidden="true"
-      >
-        <img
-          :src="TRANSPORT_ICONS.bus"
-          alt=""
-          class="tbm__transport-icon"
-        >
-      </span>
+    <Win98ModuleBanner
+      :icon="TRANSPORT_ICONS.bus"
+      title="Prochains passages TBM"
+    />
 
-      <span class="tbm__banner-title">
-        Prochains passages TBM
-      </span>
-    </div>
-
-    <div
+    <Win98ModuleStatus
       v-if="error"
-      class="tbm__empty"
-    >
-      <p class="tbm__empty-line">
-        Service indisponible
-      </p>
-
-      <p class="tbm__empty-why">
-        {{ error.statusMessage ?? error.message }}
-      </p>
-    </div>
+      tone="warn"
+      line="Service indisponible"
+      :detail="error.statusMessage ?? error.message"
+    />
 
     <div
       v-else-if="hasValidStopsResponse"
@@ -197,6 +179,7 @@ const getTransportAlt = (type: string) => {
                 <tr
                   v-for="(passage, index) in stop.passages"
                   :key="`${stop.ref}-${index}`"
+                  class="tbm__row"
                   :class="{ 'tbm__row--imminent': isImminent(passage.minutes) }"
                 >
                   <td class="tbm__cell tbm__cell--destination">
@@ -222,81 +205,28 @@ const getTransportAlt = (type: string) => {
       <EtatTbmModule class="tbm__network" />
     </div>
 
-    <div
+    <Win98ModuleStatus
       v-else-if="rawData"
-      class="tbm__empty"
-    >
-      <p class="tbm__empty-line">
-        Réponse horaires invalide
-      </p>
+      tone="warn"
+      line="Réponse horaires invalide"
+      detail="L’API TBM n’a pas renvoyé de liste de passages."
+    />
 
-      <p class="tbm__empty-why">
-        L’API TBM n’a pas renvoyé de liste de passages.
-      </p>
-    </div>
-
-    <div
+    <Win98ModuleStatus
       v-else
-      class="tbm__empty"
-    >
-      <p class="tbm__empty-line">
-        Chargement...
-      </p>
-    </div>
+      line="Chargement..."
+    />
   </div>
 </template>
 
 <style scoped lang="scss">
 .tbm {
-  --tbm-face: var(--w98-face, #c0c0c0);
-  --tbm-shadow: var(--w98-shadow, #808080);
-  --tbm-dark-shadow: var(--w98-dark-shadow, #404040);
-  --tbm-white: var(--w98-white, #fff);
-  --tbm-blue: #0a246a;
-  --tbm-blue-light: #a6caf0;
-  --tbm-text: #000;
-  --tbm-muted: #555;
-  --tbm-warn: #b00000;
-
   display: flex;
   height: 100%;
   flex-direction: column;
-  background: var(--tbm-white);
-  color: var(--tbm-text);
+  background: var(--w98-white);
+  color: var(--w98-text);
   font-family: var(--w98-ui-font), sans-serif;
-}
-
-.tbm__transport-icon {
-  width: 60px;
-  height: 40px;
-  image-rendering: pixelated;
-}
-
-.tbm__banner {
-  display: flex;
-  flex: 0 0 auto;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 14px;
-  background: linear-gradient(90deg, #000080, #1084d0);
-  color: var(--tbm-white);
-  height: 10%;
-}
-
-.tbm__banner-icon {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 20px;
-}
-
-.tbm__banner-separator {
-  line-height: 1;
-}
-
-.tbm__banner-title {
-  font-size: 20px;
-  font-weight: 700;
 }
 
 .tbm__content {
@@ -326,48 +256,47 @@ const getTransportAlt = (type: string) => {
 .tbm__section-title-container {
   display: flex;
   align-items: center;
+  gap: 8px;
 }
 
 .tbm__section-title {
-  color: var(--tbm-text);
-  font-size: 20px;
+  color: var(--w98-text);
+  font-size: var(--w98-ui-size);
   font-weight: 700;
 }
 
 .tbm__section-icon {
   width: auto;
-  height: 30px;
-  margin-left: 5px;
+  height: 26px;
   image-rendering: pixelated;
 }
 
 .tbm__stop {
   padding: 8px 10px;
   margin-bottom: 9px;
-  border: 2px solid;
-  border-color: var(--tbm-shadow) var(--tbm-white) var(--tbm-white) var(--tbm-shadow);
-  background: var(--tbm-face);
+  background: var(--w98-face);
+  box-shadow: var(--w98-raised);
 }
 
 .tbm__stop-name {
   margin: 0 0 6px;
-  color: var(--tbm-muted);
-  font-size: 15px;
+  color: var(--w98-text-dim);
+  font-size: var(--w98-ui-size);
   font-style: italic;
 }
 
 .tbm__table {
   width: 100%;
   border-collapse: collapse;
-  background: var(--tbm-white);
+  background: var(--w98-white);
 }
 
 .tbm__cell {
-  padding: 4px 8px;
-  font-size: 17px;
+  padding: 6px 10px;
+  font-size: var(--w98-ui-size);
 
   &--muted {
-    color: var(--tbm-muted);
+    color: var(--w98-text-dim);
     font-style: italic;
   }
 
@@ -379,23 +308,32 @@ const getTransportAlt = (type: string) => {
   }
 
   &--time {
-    width: 90px;
+    width: 110px;
+    font-size: var(--w98-ui-size-lg);
     font-weight: 700;
     text-align: right;
     font-variant-numeric: tabular-nums;
   }
 }
 
-.tbm__row--imminent .tbm__cell--time {
-  color: var(--tbm-warn);
+// The Explorer "selected row" treatment, repurposed: a passage due in the
+// next 2 minutes gets the same full blue highlight a selected file gets,
+// instead of just colouring its numerals. Red stays reserved for genuine
+// error/disruption states across every module.
+.tbm__row--imminent {
+  background: var(--w98-select);
+
+  .tbm__cell {
+    color: var(--w98-white);
+  }
 }
 
 .tbm__badge {
   margin-left: 8px;
   padding: 0 4px;
-  border: 1px solid var(--tbm-shadow);
-  color: var(--tbm-muted);
-  font-size: 11px;
+  border: 1px solid var(--w98-shadow);
+  color: inherit;
+  font-size: var(--w98-ui-size-sm);
   text-transform: uppercase;
 }
 
@@ -407,81 +345,10 @@ const getTransportAlt = (type: string) => {
   min-width: 0;
 }
 
-.tbm__source {
-  margin: 0;
-  align-self: flex-end;
-  color: var(--tbm-muted);
-  font-size: 12px;
-  font-style: italic;
-}
-
-.tbm__empty {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.tbm__empty-line {
-  margin: 0;
-  color: var(--tbm-muted);
-  font-size: 22px;
-}
-
-.tbm__empty-why {
-  max-width: 80%;
-  margin: 0;
-  color: var(--tbm-warn);
-  font-size: 15px;
-  text-align: center;
-}
-
-.tbm__statusbar {
-  display: flex;
-  flex: 0 0 auto;
-  gap: 6px;
-  padding: 3px 6px;
-  border-top: 1px solid var(--tbm-shadow);
-  background: var(--tbm-face);
-  font-size: 12px;
-}
-
-.tbm__status-cell {
-  padding: 2px 8px;
-  border: 1px solid;
-  border-color: var(--tbm-shadow) var(--tbm-white) var(--tbm-white) var(--tbm-shadow);
-  white-space: nowrap;
-}
-
-.tbm__status-progress {
-  display: flex;
-  flex: 1;
-  gap: 1px;
-  min-width: 30px;
-  padding: 2px 6px;
-  border: 1px solid;
-  border-color: var(--tbm-shadow) var(--tbm-white) var(--tbm-white) var(--tbm-shadow);
-}
-
-.tbm__status-block {
-  flex: 1;
-  background: var(--tbm-blue-light);
-}
-
 @media (max-width: 820px) {
   .tbm__passages {
     grid-template-columns: 1fr;
     gap: 14px;
-  }
-
-  .tbm__statusbar {
-    gap: 3px;
-  }
-
-  .tbm__status-cell {
-    padding: 2px 5px;
   }
 }
 </style>

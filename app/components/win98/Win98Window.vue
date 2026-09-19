@@ -323,7 +323,7 @@ function accelerator(label: string) {
     margin-top: 4px;
 
     &--well {
-      background: #fff;
+      background: var(--w98-face);
       box-shadow: var(--w98-sunken);
     }
   }
