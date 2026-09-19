@@ -7,8 +7,8 @@ interface TbmStopResult extends TbmStopConfig {
 }
 
 const TRANSPORT_ICONS = {
-  bus: '/windows98-icons/png/transports/test-bus.png',
-  tram: '/windows98-icons/png/transports/test-tram.png',
+  bus: '/windows98-icons/png/transports/bus.png',
+  tram: '/windows98-icons/png/transports/tram.png',
 } as const
 
 /*
@@ -138,70 +138,65 @@ const getTransportAlt = (type: string) => {
       v-else-if="hasValidStopsResponse"
       class="tbm__content"
     >
-      <div class="tbm__passages">
+      <div class="tbm__lines">
         <section
           v-for="group in groups"
           :key="group.label"
-          class="tbm__section"
+          class="tbm__line"
         >
-          <div class="tbm__section-title-container">
-            <span class="tbm__section-title">
-              {{ group.label }}
-            </span>
+          <header class="tbm__line-head">
+            <span class="tbm__line-label">{{ group.label }}</span>
 
             <img
               :src="getTransportIcon(group.type)"
               :alt="getTransportAlt(group.type)"
-              class="tbm__section-icon"
+              class="tbm__line-icon"
             >
-          </div>
+          </header>
 
-          <div
-            v-for="stop in group.stops"
-            :key="stop.ref"
-            class="tbm__stop"
-          >
-            <p class="tbm__stop-name">
-              {{ stop.direction }}
-            </p>
+          <div class="tbm__line-list">
+            <article
+              v-for="stop in group.stops"
+              :key="stop.ref"
+              class="tbm__stop-row"
+            >
+              <div class="tbm__stop-direction">
+                {{ stop.direction }}
+              </div>
 
-            <table class="tbm__table">
-              <tbody>
-                <tr v-if="stop.passages.length === 0">
-                  <td
-                    colspan="2"
-                    class="tbm__cell tbm__cell--muted"
-                  >
-                    Aucun passage prévu
-                  </td>
-                </tr>
+              <div
+                v-if="stop.passages.length === 0"
+                class="tbm__stop-empty"
+              >
+                Aucun passage prévu
+              </div>
 
-                <tr
-                  v-for="(passage, index) in stop.passages"
+              <div
+                v-else
+                class="tbm__stop-passages"
+              >
+                <span
+                  v-for="(passage, index) in stop.passages.slice(0, 2)"
                   :key="`${stop.ref}-${index}`"
-                  class="tbm__row"
-                  :class="{ 'tbm__row--imminent': isImminent(passage.minutes) }"
+                  class="tbm__passage"
+                  :class="{ 'tbm__passage--imminent': isImminent(passage.minutes) }"
                 >
-                  <td class="tbm__cell tbm__cell--destination">
+                  <span class="tbm__passage-destination">
                     {{ passage.destination }}
-
                     <span
                       v-if="!passage.tempsReel"
                       class="tbm__badge"
-                    >
-                      théorique
-                    </span>
-                  </td>
+                    >théo.</span>
+                  </span>
 
-                  <td class="tbm__cell tbm__cell--time">
-                    {{ formatMinutes(passage.minutes) }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                  <span class="tbm__passage-time">{{ formatMinutes(passage.minutes) }}</span>
+                </span>
+              </div>
+            </article>
           </div>
         </section>
       </div>
+
       <EtatTbmModule class="tbm__network" />
     </div>
 
@@ -229,107 +224,156 @@ const getTransportAlt = (type: string) => {
   font-family: var(--w98-ui-font), sans-serif;
 }
 
+// Same recipe as WeatherModule: a static, non-interactive screen with no
+// scroll, so everything below sits inside this box and shares whatever
+// vertical space is available instead of growing past it.
 .tbm__content {
   display: flex;
   min-height: 0;
   flex: 1;
   flex-direction: column;
-  gap: 12px;
-  padding: 14px 18px;
-  overflow-y: auto;
+  gap: 10px;
+  padding: 12px 16px;
+  overflow: hidden;
+  background: var(--w98-face);
 }
 
-.tbm__passages {
+.tbm__lines {
   display: grid;
-  min-width: 0;
+  min-height: 0;
+  flex: 1;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 50px;
+  gap: 14px;
 }
 
-.tbm__section {
+// Same shell as the weather hero/forecast cards: a raised tile on the face
+// holding a sunken document well, so every module reads as one system.
+.tbm__line {
   display: flex;
+  min-height: 0;
   min-width: 0;
   flex-direction: column;
-  gap: 6px;
-}
-
-.tbm__section-title-container {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.tbm__section-title {
-  color: var(--w98-text);
-  font-size: var(--w98-ui-size);
-  font-weight: 700;
-}
-
-.tbm__section-icon {
-  width: auto;
-  height: 26px;
-  image-rendering: pixelated;
-}
-
-.tbm__stop {
-  padding: 8px 10px;
-  margin-bottom: 9px;
   background: var(--w98-face);
   box-shadow: var(--w98-raised);
 }
 
-.tbm__stop-name {
-  margin: 0 0 6px;
-  color: var(--w98-text-dim);
+// Win98's own selection colour, used as the "highlighted" title band, same
+// as the weather hero header.
+.tbm__line-head {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  background: var(--w98-select);
+}
+
+.tbm__line-label {
+  color: var(--w98-white);
   font-size: var(--w98-ui-size);
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.tbm__line-icon {
+  width: auto;
+  height: 22px;
+  flex: 0 0 auto;
+  image-rendering: pixelated;
+}
+
+// A Win98 list view: sunken well, thin row separators, no card-per-stop.
+// Rows share the well as equal flex parts so the list always fits exactly,
+// whatever the number of stops turns out to be.
+.tbm__line-list {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--w98-white);
+  box-shadow: var(--w98-sunken);
+}
+
+.tbm__stop-row {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 0;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-bottom: 1px solid var(--w98-face-alt);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.tbm__stop-direction {
+  overflow: hidden;
+  color: var(--w98-text-dim);
+  font-size: var(--w98-ui-size-sm);
+  font-style: italic;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tbm__stop-empty {
+  color: var(--w98-text-dim);
+  font-size: var(--w98-ui-size-sm);
   font-style: italic;
 }
 
-.tbm__table {
-  width: 100%;
-  border-collapse: collapse;
-  background: var(--w98-white);
+.tbm__stop-passages {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.tbm__cell {
-  padding: 6px 10px;
+.tbm__passage {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tbm__passage-destination {
+  overflow: hidden;
+  min-width: 0;
+  flex: 1 1 auto;
+  color: var(--w98-text);
   font-size: var(--w98-ui-size);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
 
-  &--muted {
-    color: var(--w98-text-dim);
-    font-style: italic;
-  }
-
-  &--destination {
-    overflow: hidden;
-    text-align: left;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-
-  &--time {
-    width: 110px;
-    font-size: var(--w98-ui-size-lg);
-    font-weight: 700;
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-  }
+.tbm__passage-time {
+  flex: 0 0 auto;
+  color: var(--w98-text);
+  font-size: var(--w98-ui-size);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 // The Explorer "selected row" treatment, repurposed: a passage due in the
 // next 2 minutes gets the same full blue highlight a selected file gets,
 // instead of just colouring its numerals. Red stays reserved for genuine
 // error/disruption states across every module.
-.tbm__row--imminent {
-  background: var(--w98-select);
-
-  .tbm__cell {
+.tbm__passage--imminent {
+  .tbm__passage-destination,
+  .tbm__passage-time {
+    padding: 1px 4px;
+    background: var(--w98-select);
     color: var(--w98-white);
   }
 }
 
 .tbm__badge {
-  margin-left: 8px;
+  margin-left: 6px;
   padding: 0 4px;
   border: 1px solid var(--w98-shadow);
   color: inherit;
@@ -340,15 +384,18 @@ const getTransportAlt = (type: string) => {
 /* Le composant enfant gère entièrement son contenu et son design.
    Le parent ne définit que son placement dans la mise en page. */
 .tbm__network {
-  margin-top: 30px;
+  flex: 0 0 auto;
   width: 100%;
   min-width: 0;
 }
 
 @media (max-width: 820px) {
-  .tbm__passages {
+  .tbm__lines {
     grid-template-columns: 1fr;
-    gap: 14px;
+  }
+
+  .tbm__stop-direction {
+    display: none;
   }
 }
 </style>

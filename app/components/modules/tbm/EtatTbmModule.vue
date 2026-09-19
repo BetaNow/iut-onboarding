@@ -19,7 +19,7 @@ interface StatusAsset {
  */
 const STATUS_ASSETS: Record<TbmNetworkLevel, StatusAsset> = {
   normal: {
-    icon: '/windows98-icons/png/status/normal.png',
+    icon: '/windows98-icons/png/trust0-0.png',
     label: 'Service normal',
     description: 'Le service circule normalement.',
   },
@@ -34,7 +34,7 @@ const STATUS_ASSETS: Record<TbmNetworkLevel, StatusAsset> = {
     description: 'Des retards ou ralentissements sont possibles.',
   },
   disruption: {
-    icon: '/windows98-icons/png/status/disruption.png',
+    icon: '/windows98-icons/png/trust1_restrict-0.png',
     label: 'Service perturbé',
     description: 'Le service est fortement perturbé ou interrompu.',
   },
