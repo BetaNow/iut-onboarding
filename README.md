@@ -116,7 +116,7 @@ settings: [
 defineProps<{ city?: string }>()
 ```
 
-Fields are `text`, `number`, `boolean` or `select`; `number` takes `min` and `max`, `select` takes `options`. Keys are snake_case because that is how they are stored, and ESLint's prop-name-casing rule is turned off for this directory so they can be written as-is.
+Fields are `text`, `number`, `boolean`, `select` or `image`; `number` takes `min` and `max`, `select` takes `options`. `image` renders a click-or-drop upload zone in the admin and stores the picture as a base64 data URL (PNG/JPEG/GIF/WebP, 2 MB max) directly in the setting's value — there is no separate file storage, so the component receives it the same way any other text setting arrives, ready to hand to an `<img>` or `Win98ImageFrame`. Keys are snake_case because that is how they are stored, and ESLint's prop-name-casing rule is turned off for this directory so they can be written as-is.
 
 The stored JSON is what decides which fields exist. The admin renders an input for every key it finds on the row, so a key written straight into `module_config_table.settings` shows up in the editor without the catalogue knowing about it, labelled from the key and typed from the value. Declared keys keep their label, help text and type, and are validated against the declaration; undeclared keys are kept as they stand. Values must be primitives either way, since the whole object is spread onto the component as props.
 

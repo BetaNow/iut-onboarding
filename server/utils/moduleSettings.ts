@@ -9,6 +9,12 @@ export class ModuleSettingsError extends Error {
   }
 }
 
+// A data URL this size decodes to roughly 2.2 MB — plenty for a kiosk
+// announcement graphic, small enough to keep in a JSON column without
+// bumping into MySQL's default max_allowed_packet.
+const MAX_IMAGE_DATA_URL_LENGTH = 3_000_000
+const IMAGE_DATA_URL_PATTERN = /^data:image\/(png|jpe?g|gif|webp);base64,/
+
 function coerce(field: ModuleSettingField, value: unknown): ModuleSettingValue {
   switch (field.type) {
     case 'text': {
@@ -52,6 +58,26 @@ function coerce(field: ModuleSettingField, value: unknown): ModuleSettingValue {
 
       if (typeof value !== 'string' || !allowed.includes(value)) {
         throw new ModuleSettingsError(`« ${field.label} » n'accepte pas cette valeur.`)
+      }
+
+      return value
+    }
+
+    case 'image': {
+      if (typeof value !== 'string') {
+        throw new ModuleSettingsError(`« ${field.label} » doit être une image.`)
+      }
+
+      if (value === '') {
+        return value
+      }
+
+      if (!IMAGE_DATA_URL_PATTERN.test(value)) {
+        throw new ModuleSettingsError(`« ${field.label} » doit être une image PNG, JPEG, GIF ou WebP.`)
+      }
+
+      if (value.length > MAX_IMAGE_DATA_URL_LENGTH) {
+        throw new ModuleSettingsError(`« ${field.label} » est trop lourde (2 Mo maximum).`)
       }
 
       return value

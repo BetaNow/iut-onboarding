@@ -39,7 +39,7 @@ export interface ModuleSettingOption {
 export interface ModuleSettingField {
   key: string
   label: string
-  type: 'text' | 'number' | 'boolean' | 'select'
+  type: 'text' | 'number' | 'boolean' | 'select' | 'image'
   default: ModuleSettingValue
   help?: string
   /** `select` only. */
@@ -142,6 +142,35 @@ export const MODULE_CATALOGUE: ModuleDefinition[] = [
     // component, under this exact key:
     //   { key: 'city', label: 'Ville', type: 'text', default: 'Bordeaux' }
     settings: [],
+  },
+  {
+    id: 'custom-message',
+    label: 'Message',
+    icon: `${ICON}/notepad_file-0.png`,
+    defaultDurationMs: MODULE_DEFAULT_DURATION,
+    settings: [
+      {
+        key: 'title',
+        label: 'Titre',
+        type: 'text',
+        default: '',
+        help: 'Facultatif. Affiché au-dessus du message.',
+      },
+      {
+        key: 'message',
+        label: 'Message',
+        type: 'text',
+        default: 'Bienvenue !',
+        help: 'Le texte affiché sur l’écran.',
+      },
+      {
+        key: 'image',
+        label: 'Image',
+        type: 'image',
+        default: '',
+        help: 'Facultatif. PNG/JPEG/GIF/WebP, 2 Mo max.',
+      },
+    ],
   },
 ]
 

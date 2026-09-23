@@ -62,59 +62,28 @@ const reason = computed(() => {
 
 <template>
   <div class="reddit">
-    <!-- Site chrome. Reddit's own blues, but drawn in the desktop's face: the
-         layout is what makes it read as reddit, so the type is free to belong to
-         the machine rendering it. -->
-    <div class="reddit__chrome">
-      <img
-          class="reddit__snoo"
-          src="/img/logo-reddit.png"
-          alt=""
-          width="44"
-          height="44"
-      >
-      <span class="reddit__wordmark">reddit</span>
-      <!-- From the prop, not the response: the subreddit is known even when the
-           fetch fails, so the chrome stays whole on the error state. -->
-      <span class="reddit__sub">r/{{ subreddit }}</span>
-    </div>
-    <div class="reddit__tabs"/>
+    <Win98ModuleBanner
+        icon="/img/logo-reddit.png"
+        icon-alt="Reddit logo"
+        :title="`Memes – r/${subreddit}`"
+    />
 
-    <div
+    <Win98ModuleStatus
         v-if="error"
-        class="reddit__empty"
-    >
-      <p class="reddit__empty-line">
-        there doesn't seem to be anything here
-      </p>
-      <p class="reddit__empty-why">
-        {{ reason }}
-      </p>
-    </div>
+        tone="warn"
+        line="Le mème n’a pas pu être chargé."
+        :detail="reason"
+    />
 
     <div
         v-else-if="data"
-        class="reddit__post"
+        class="reddit__content"
     >
-      <!-- The midcol: the one place colour is spent. -->
-      <div class="reddit__votes">
-        <span class="reddit__arrow reddit__arrow--up"/>
-        <!-- Reddit prints a dot while a post's score is hidden. The panel never
-             stores the upvote count, so the dot is the truthful reading. -->
-        <span class="reddit__score">•</span>
-        <span class="reddit__arrow reddit__arrow--down"/>
-      </div>
-
-      <div class="reddit__entry">
-        <p class="reddit__headline">
+      <section class="reddit__post">
+        <header class="reddit__post-head">
           <span class="reddit__title">{{ data.title }}</span>
-          <span class="reddit__domain">({{ domain }})</span>
-        </p>
-
-        <p class="reddit__tagline">
-          submitted by <span class="reddit__author">{{ data.author }}</span> to <span
-            class="reddit__sublink">r/{{ data.subreddit }}</span>
-        </p>
+          <span class="reddit__domain">{{ domain }}</span>
+        </header>
 
         <div class="reddit__expando">
           <img
@@ -124,210 +93,146 @@ const reason = computed(() => {
           >
         </div>
 
-        <p class="reddit__buttons">
-          <span>share</span><span>save</span><span>hide</span><span>report</span>
-        </p>
-      </div>
+        <footer class="reddit__post-foot">
+          <span class="reddit__tagline">
+            par <strong class="reddit__author">{{ data.author }}</strong> dans <strong
+              class="reddit__sublink">r/{{ data.subreddit }}</strong>
+          </span>
+
+          <span class="reddit__buttons">
+            <span>partager</span><span>enregistrer</span><span>masquer</span><span>signaler</span>
+          </span>
+        </footer>
+      </section>
     </div>
 
-    <div
+    <Win98ModuleStatus
         v-else
-        class="reddit__empty"
-    >
-      <p class="reddit__empty-line">
-        loading...
-      </p>
-    </div>
+        line="Chargement du mème…"
+    />
   </div>
 </template>
 
 <style scoped lang="scss">
 .reddit {
-  // Old reddit's palette, lifted from its stylesheet rather than themed to the
-  // desktop. A page inside a browser window does not take the system colours.
-  --rd-chrome: #cee3f8;
-  --rd-rule: #5f99cf;
-  --rd-title: #0000ff;
-  --rd-meta: #888;
-  --rd-vote: #ff8b60;
-  --rd-arrow: #c3c3c3;
-
   display: flex;
   height: 100%;
   flex-direction: column;
-  background: #fff;
-
-  // MS Sans Serif, the same face as the chrome outside. Reddit used Verdana, but
-  // the whole desktop should look drawn by one machine.
-  //
-  // Sizes run about twice reddit's, since this is read from across a corridor.
-  // The proportions between them are reddit's.
-  font-family: var(--w98-ui-font);
+  background: var(--w98-face);
+  color: var(--w98-text);
+  font-family: var(--w98-ui-font), sans-serif;
 }
 
-.reddit__chrome {
+// Same recipe as Weather/Crous/TBM: a static, non-interactive screen with no
+// scroll, so the post card below shares whatever vertical space is available
+// instead of growing past it.
+.reddit__content {
   display: flex;
-  flex: 0 0 auto;
-  align-items: center;
-  gap: 12px;
-  padding: 9px 16px;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  padding: 12px 16px;
+  overflow: hidden;
+  background: var(--w98-face);
 }
 
-.reddit__snoo {
-  flex: 0 0 auto;
-  image-rendering: pixelated;
-}
-
-.reddit__wordmark {
-  font-size: 34px;
-  font-weight: 700;
-  color: #ff4500;
-  letter-spacing: -1px;
-}
-
-.reddit__sub {
-  margin-left: 6px;
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--rd-rule);
-}
-
-.reddit__tabs {
-  flex: 0 0 12px;
-  border-bottom: 2px solid var(--rd-rule);
-  background: var(--rd-chrome);
-}
-
+// Same shell as every other module's cards: a raised tile on the face holding
+// a sunken white well for the image.
 .reddit__post {
   display: flex;
   min-height: 0;
   flex: 1;
-  gap: 14px;
-  padding: 16px 22px 10px 12px;
-}
-
-// Reddit's vote gutter. The arrows are CSS triangles, so they stay crisp instead
-// of blowing up a 15px sprite.
-.reddit__votes {
-  display: flex;
-  flex: 0 0 62px;
   flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  padding-top: 6px;
+  background: var(--w98-face);
+  box-shadow: var(--w98-raised);
 }
 
-.reddit__arrow {
-  width: 0;
-  height: 0;
-  border-right: 17px solid transparent;
-  border-left: 17px solid transparent;
-
-  &--up {
-    border-bottom: 19px solid var(--rd-vote);
-  }
-
-  &--down {
-    border-top: 19px solid var(--rd-arrow);
-  }
-}
-
-.reddit__score {
-  font-size: 22px;
-  font-weight: 700;
-  line-height: 1;
-  color: var(--rd-meta);
-}
-
-.reddit__entry {
+// Win98's own selection colour, used as the "highlighted" title band, same as
+// the weather/crous hero header.
+.reddit__post-head {
   display: flex;
-  min-width: 0;
-  min-height: 0;
-  flex: 1;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.reddit__headline {
   flex: 0 0 auto;
-  line-height: 1.25;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  background: var(--w98-select);
 }
 
-// Underlined, the way a browser of the period drew every link before
-// stylesheets talked them out of it.
 .reddit__title {
-  font-size: 33px;
-  color: var(--rd-title);
+  overflow: hidden;
+  color: var(--w98-white);
+  font-size: var(--w98-ui-size);
+  font-weight: 700;
   text-decoration: underline;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .reddit__domain {
-  margin-left: 9px;
-  font-size: 19px;
-  color: var(--rd-meta);
+  flex: 0 0 auto;
+  color: var(--w98-white);
+  font-size: var(--w98-ui-size-sm);
+}
+
+// Takes the leftover height rather than setting it, so a tall meme cannot
+// push the footer out — the static screen never scrolls.
+.reddit__expando {
+  display: flex;
+  overflow: hidden;
+  min-height: 0;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  background: var(--w98-white);
+  box-shadow: var(--w98-sunken);
+
+  img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+}
+
+.reddit__post-foot {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  box-shadow: var(--w98-groove);
 }
 
 .reddit__tagline {
-  flex: 0 0 auto;
-  font-size: 18px;
-  color: var(--rd-meta);
+  overflow: hidden;
+  min-width: 0;
+  color: var(--w98-text-dim);
+  font-size: var(--w98-ui-size-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .reddit__author,
 .reddit__sublink {
-  color: var(--rd-rule);
-  text-decoration: underline;
-}
-
-// Expanded inline, the way a meme post looks once opened. Takes the leftover
-// height rather than setting it, so a tall meme cannot push the buttons out.
-.reddit__expando {
-  display: flex;
-  min-height: 0;
-  flex: 1;
-  align-items: flex-start;
-  justify-content: flex-start;
-  padding: 8px 0;
-
-  // A border on the image, not an inset shadow on a wrapper. An inset shadow on
-  // an <img> paints under its own content, and a wrapper would size itself from
-  // the intrinsic width, leaving the frame standing off a height-capped image.
-  img {
-    max-width: 100%;
-    max-height: 100%;
-    border-width: 2px;
-    border-style: solid;
-    border-color: var(--w98-shadow) var(--w98-white) var(--w98-white) var(--w98-shadow);
-    object-fit: contain;
-  }
+  color: var(--w98-text);
 }
 
 .reddit__buttons {
   display: flex;
   flex: 0 0 auto;
-  gap: 16px;
-  font-size: 17px;
+  gap: 12px;
+  color: var(--w98-text-dim);
+  font-size: var(--w98-ui-size-sm);
   font-weight: 700;
-  color: var(--rd-meta);
+  text-transform: uppercase;
 }
 
-.reddit__empty {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 24px;
-}
-
-.reddit__empty-line {
-  font-size: 26px;
-  color: var(--rd-meta);
-}
-
-.reddit__empty-why {
-  font-size: 18px;
-  color: #b00;
+@media (max-width: 600px) {
+  .reddit__domain,
+  .reddit__buttons {
+    display: none;
+  }
 }
 </style>
